@@ -109,7 +109,7 @@ public class Game extends JFrame implements GLEventListener, MouseListener {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 		this.setResizable(true);
-		anim = new FPSAnimator(canvas, 60);
+		this.anim = new FPSAnimator(canvas, 60);
 		anim.start();
 		view = new Camera(new Vector3f(0, 0, 3), new Vector3f(0, 0, 0));
 		canvas.addKeyListener(view.getKeyboard());
