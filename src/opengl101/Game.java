@@ -120,6 +120,7 @@ public class Game extends JFrame implements GLEventListener {
 		canvas.addKeyListener(view.getKeyboard());
 		canvas.addMouseMotionListener(view.getMouseLocker());
 		canvas.addMouseListener(view.getMouseLocker());
+		canvas.requestFocus();
 		// matrix math
 		matrixData = Buffers.newDirectFloatBuffer(16);
 		modelMatrix = new Matrix4f().rotation((float) Math.toRadians(-55.0f), new Vector3f(1, 0, 0)).scale(0.25f);
