@@ -111,8 +111,9 @@ public class Game extends JFrame implements GLEventListener, MouseListener {
 		this.setResizable(true);
 		this.anim = new FPSAnimator(canvas, 60);
 		anim.start();
-		view = new Camera(new Vector3f(0, 0, 3), new Vector3f(0, 0, 0));
+		view = new Camera(new Vector3f(0, 0, 3), new Vector3f(0, 0, 0), new MouseLocker(canvas));
 		canvas.addKeyListener(view.getKeyboard());
+		canvas.addMouseMotionListener(view.getMouseLocker());
 		// matrix math
 		matrixData = Buffers.newDirectFloatBuffer(16);
 		modelMatrix = new Matrix4f().rotation((float) Math.toRadians(-55.0f), new Vector3f(1, 0, 0)).scale(0.25f);

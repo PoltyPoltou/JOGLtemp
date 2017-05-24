@@ -1,6 +1,5 @@
 package opengl101;
 
-import java.awt.*;
 import java.awt.event.*;
 
 import org.joml.*;
@@ -8,25 +7,28 @@ import org.joml.*;
 public class Camera implements Runnable {
 	private float speedTranslation = 0.05f, speedRotation = 0.01f;
 	private boolean up, down, left, right, front, back;
-	private boolean Rx, Ry, Rz;
-	private byte RxSign, RySign, RzSign;
+	private int Rx, Ry, Rz;
 	private static Vector3f upDirection = new Vector3f(0, 1, 0);
+	private final Vector3f targetF;
 	private Matrix4f lookAt;
 	private Vector3f position, target, frontDirection, reset;
 	private KeyboardInput keyboard;
 	private Thread thread;
+	private MouseLocker mouse;
 
-	public Camera(Vector3f pos, Vector3f target) {
+	public Camera(Vector3f pos, Vector3f target, MouseLocker mouse) {
 		this.frontDirection = new Vector3f().add(target).sub(pos).normalize();
 		this.position = new Vector3f(pos);
 		this.reset = new Vector3f(pos);
 		this.target = new Vector3f(target);
+		this.targetF = new Vector3f(target);
 		this.keyboard = new KeyboardInput();
+		this.mouse = mouse;
 		thread = new Thread(this);
 		thread.start();
 	}
 
-	synchronized private void move() {
+	private void move() {
 		if (up)
 			this.translate(new Vector3f(0, speedTranslation, 0), true);
 		if (down)
@@ -41,15 +43,17 @@ public class Camera implements Runnable {
 			this.translate(new Vector3f(0, 0, speedTranslation), true);
 		if (front)
 			this.translate(new Vector3f(0, 0, -speedTranslation), true);
-
-		if (Ry)
-			this.rotate(frontDirection);
-		if (Rx)
-			;
 	}
 
-	private void rotate(Vector3f v, int x, int y, int z) {
-		v.add()
+	private void rotate() {
+		Quaterniond q = new Quaterniond();
+		Vector3f v = new Vector3f(targetF);
+		Matrix3f m = new Matrix3f();
+		if (Rx != 0 && Ry != 0 && Rz != 0) {
+			q.rotateYXZ(Rz, Ry, Rx);
+			q.get(m);
+			target = v.mul(m);
+		}
 	}
 
 	private void processKey() {
@@ -78,28 +82,15 @@ public class Camera implements Runnable {
 					left = trigger;
 					break;
 
-				case KeyEvent.VK_A :
-					Ry = trigger;
-					RySign = 1;
-					break;
-				case KeyEvent.VK_E :
-					Ry = trigger;
-					RySign = -1;
-					break;
-
-				case KeyEvent.VK_F :
-					Rx = trigger;
-					RxSign = 1;
-					break;
-				case KeyEvent.VK_G :
-					Rx = trigger;
-					RxSign = -1;
-					break;
-
 				case KeyEvent.VK_R :
 					reset();
 					break;
-
+				case KeyEvent.VK_M :
+					mouse.setLock(false);
+					break;
+				case KeyEvent.VK_L :
+					mouse.setLock(true);
+					break;
 				default :
 					break;
 			}
@@ -107,11 +98,26 @@ public class Camera implements Runnable {
 			keyboard.takeType();
 	}
 
+	private void processMouse() {
+		MouseEvent m = mouse.getMousePos();
+		if (m != null) {
+			Rx = m.getX() - m.getComponent().getWidth() / 2;
+			Ry = m.getY() - m.getComponent().getHeight() / 2;
+		} else {
+			Rx = 0;
+			Ry = 0;
+			Rz = 0;
+		}
+		mouse.centerMouse();
+	}
+
 	@Override
 	public void run() {
 		while (true) {
-			this.processKey();
-			this.move();
+			processKey();
+			processMouse();
+			move();
+			rotate();
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
@@ -178,38 +184,12 @@ public class Camera implements Runnable {
 		return keyboard;
 	}
 
+	public MouseLocker getMouseLocker() {
+		return mouse;
+	}
+
 	public void reset() {
 		position.set(reset);
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		new Robot()
-
 	}
 
 }
