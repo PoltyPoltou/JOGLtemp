@@ -3,7 +3,7 @@ package opengl101;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MouseLocker implements MouseMotionListener {
+public class MouseLocker extends MouseAdapter implements MouseMotionListener {
 
 	private Robot robot;
 	private boolean lock;
@@ -22,6 +22,10 @@ public class MouseLocker implements MouseMotionListener {
 
 	public MouseEvent getMousePos() {
 		return mouse;
+	}
+
+	public boolean getLock() {
+		return lock;
 	}
 
 	public boolean centerMouse() {
@@ -49,6 +53,11 @@ public class MouseLocker implements MouseMotionListener {
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		swapLock();
 	}
 
 }

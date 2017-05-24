@@ -1,5 +1,7 @@
 package opengl101;
 
+import java.awt.*;
+import java.awt.image.*;
 import java.lang.Math;
 import java.nio.*;
 import java.time.*;
@@ -9,13 +11,12 @@ import javax.swing.*;
 import org.joml.*;
 
 import com.jogamp.common.nio.*;
-import com.jogamp.newt.event.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.*;
 import com.jogamp.opengl.util.*;
 
 @SuppressWarnings("unused")
-public class Game extends JFrame implements GLEventListener, MouseListener {
+public class Game extends JFrame implements GLEventListener {
 
 	private static final long serialVersionUID = 1L;
 	final private int width = 800;
@@ -102,6 +103,7 @@ public class Game extends JFrame implements GLEventListener, MouseListener {
 		GLCapabilities capabilities = new GLCapabilities(profile);
 		canvas = new GLCanvas(capabilities);
 		canvas.addGLEventListener(this);
+
 		this.setName("Minimal Test");
 		this.getContentPane().add(canvas);
 		this.setSize(width, height);
@@ -109,11 +111,15 @@ public class Game extends JFrame implements GLEventListener, MouseListener {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 		this.setResizable(true);
+		this.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "invisible cursor"));
+		// change cursor to an invisible one
+
 		this.anim = new FPSAnimator(canvas, 60);
 		anim.start();
 		view = new Camera(new Vector3f(0, 0, 3), new Vector3f(0, 0, 0), new MouseLocker(canvas));
 		canvas.addKeyListener(view.getKeyboard());
 		canvas.addMouseMotionListener(view.getMouseLocker());
+		canvas.addMouseListener(view.getMouseLocker());
 		// matrix math
 		matrixData = Buffers.newDirectFloatBuffer(16);
 		modelMatrix = new Matrix4f().rotation((float) Math.toRadians(-55.0f), new Vector3f(1, 0, 0)).scale(0.25f);
@@ -211,47 +217,6 @@ public class Game extends JFrame implements GLEventListener, MouseListener {
 
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
-
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		anim.resume();
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		anim.pause();
-
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseWheelMoved(MouseEvent e) {
 
 	}
 

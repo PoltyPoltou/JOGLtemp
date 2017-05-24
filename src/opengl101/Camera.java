@@ -1,15 +1,15 @@
 package opengl101;
 
 import java.awt.event.*;
+import java.lang.Math;
 
 import org.joml.*;
 
 public class Camera implements Runnable {
-	private float speedTranslation = 0.05f, speedRotation = 0.01f;
+	private float speedTranslation = 0.05f, speedRotation = 0.1f;
 	private boolean up, down, left, right, front, back;
-	private int Rx, Ry, Rz;
+	private double Rx, Ry, Rz;
 	private static Vector3f upDirection = new Vector3f(0, 1, 0);
-	private final Vector3f targetF;
 	private Matrix4f lookAt;
 	private Vector3f position, target, frontDirection, reset;
 	private KeyboardInput keyboard;
@@ -21,7 +21,6 @@ public class Camera implements Runnable {
 		this.position = new Vector3f(pos);
 		this.reset = new Vector3f(pos);
 		this.target = new Vector3f(target);
-		this.targetF = new Vector3f(target);
 		this.keyboard = new KeyboardInput();
 		this.mouse = mouse;
 		thread = new Thread(this);
@@ -30,29 +29,30 @@ public class Camera implements Runnable {
 
 	private void move() {
 		if (up)
-			this.translate(new Vector3f(0, speedTranslation, 0), true);
+			this.translate(new Vector3f(upDirection).mul(speedTranslation));
 		if (down)
-			this.translate(new Vector3f(0, -speedTranslation, 0), true);
+			this.translate(new Vector3f(upDirection).mul(-speedTranslation));
 
 		if (right)
-			this.translate(new Vector3f(speedTranslation, 0, 0), true);
+			this.translate(new Vector3f(frontDirection).cross(upDirection).mul(speedTranslation));
 		if (left)
-			this.translate(new Vector3f(-speedTranslation, 0, 0), true);
+			this.translate(new Vector3f(frontDirection).cross(upDirection).mul(-speedTranslation));
 
 		if (back)
-			this.translate(new Vector3f(0, 0, speedTranslation), true);
+			this.translate(new Vector3f(frontDirection).mul(-speedTranslation));
 		if (front)
-			this.translate(new Vector3f(0, 0, -speedTranslation), true);
+			this.translate(new Vector3f(frontDirection).mul(speedTranslation));
 	}
 
 	private void rotate() {
 		Quaterniond q = new Quaterniond();
-		Vector3f v = new Vector3f(targetF);
+		Vector3f v = new Vector3f(frontDirection);
 		Matrix3f m = new Matrix3f();
-		if (Rx != 0 && Ry != 0 && Rz != 0) {
-			q.rotateYXZ(Rz, Ry, Rx);
+		if (Rx != 0 || Ry != 0 || Rz != 0) {
+			q.rotateX(Rx);
+			q.rotateY(Ry);
 			q.get(m);
-			target = v.mul(m);
+			frontDirection = v.mul(m);
 		}
 	}
 
@@ -100,9 +100,10 @@ public class Camera implements Runnable {
 
 	private void processMouse() {
 		MouseEvent m = mouse.getMousePos();
-		if (m != null) {
-			Rx = m.getX() - m.getComponent().getWidth() / 2;
-			Ry = m.getY() - m.getComponent().getHeight() / 2;
+		if (m != null && mouse.getLock()) {
+			// Moving in X axis means a Y axis rotation
+			Ry = -Math.toRadians(m.getX() - m.getComponent().getWidth() / 2) * speedRotation;
+			Rx = -Math.toRadians(m.getY() - m.getComponent().getHeight() / 2) * speedRotation;
 		} else {
 			Rx = 0;
 			Ry = 0;
@@ -119,17 +120,15 @@ public class Camera implements Runnable {
 			move();
 			rotate();
 			try {
-				Thread.sleep(10);
+				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				System.out.println("Thread Camera " + this.getClass().getName() + "a été interrompu");
 			}
 		}
 	}
 
-	public void translate(Vector3f v, boolean moveTarget) {
+	public void translate(Vector3f v) {
 		position.add(v);
-		if (moveTarget)
-			target.add(v);
 	}
 
 	synchronized public Matrix4f getLookAt() {
@@ -164,20 +163,28 @@ public class Camera implements Runnable {
 		this.position.z = z;
 	}
 
-	public void setCameraTarget(Vector3f cameraTarget) {
-		this.target = cameraTarget;
-	}
-
 	public void setTargetX(float x) {
 		this.target.x = x;
+		setTarget();
 	}
 
 	public void setTargetY(float y) {
 		this.target.y = y;
+		setTarget();
 	}
 
 	public void setTargetZ(float z) {
 		this.target.z = z;
+		setTarget();
+	}
+
+	public void setTarget(Vector3f cameraTarget) {
+		target = new Vector3f(cameraTarget);
+		setTarget();
+	}
+
+	public void setTarget() {
+		frontDirection = new Vector3f().add(target).sub(position).normalize();
 	}
 
 	public KeyboardInput getKeyboard() {
