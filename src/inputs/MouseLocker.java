@@ -1,4 +1,4 @@
-package opengl101;
+package inputs;
 
 import java.awt.*;
 import java.awt.event.*;

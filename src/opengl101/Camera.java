@@ -5,6 +5,8 @@ import java.lang.Math;
 
 import org.joml.*;
 
+import inputs.*;
+
 public class Camera implements Runnable {
 	private float speedTranslation = 0.05f, speedRotation = 0.1f;
 	private boolean up, down, left, right, front, back;
@@ -47,58 +49,22 @@ public class Camera implements Runnable {
 	}
 
 	private void rotate() {
-		Quaterniond q = new Quaterniond();
 		Vector3f v = new Vector3f(frontDirection);
-		Matrix3f m = new Matrix3f();
+		Matrix3d m = new Matrix3d();
 		if (Rx != 0 || Ry != 0 || Rz != 0) {
-			q.rotateX(Rx);
-			q.rotateY(Ry);
-			q.get(m);
+			m.rotateXYZ(Rx, Ry, Rz);
 			frontDirection = v.mul(m);
 			updateDirections();
 		}
 	}
 
 	private void processKey() {
-		KeyEvent e = keyboard.take();
-		if (e != null) {
-			boolean trigger = keyboard.takeType();
-			switch (e.getKeyCode()) {
-				case KeyEvent.VK_S :
-					back = trigger;
-					break;
-				case KeyEvent.VK_Z :
-					front = trigger;
-					break;
-
-				case KeyEvent.VK_SPACE :
-					up = trigger;
-					break;
-				case KeyEvent.VK_CONTROL :
-					down = trigger;
-					break;
-
-				case KeyEvent.VK_D :
-					right = trigger;
-					break;
-				case KeyEvent.VK_Q :
-					left = trigger;
-					break;
-
-				case KeyEvent.VK_R :
-					reset();
-					break;
-				case KeyEvent.VK_M :
-					mouse.setLock(false);
-					break;
-				case KeyEvent.VK_L :
-					mouse.setLock(true);
-					break;
-				default :
-					break;
-			}
-		} else
-			keyboard.takeType();
+		up = keyboard.isPressed(' ');
+		down = keyboard.isPressed(KeyEvent.VK_CONTROL);
+		left = keyboard.isPressed('q');
+		right = keyboard.isPressed('d');
+		front = keyboard.isPressed('z');
+		back = keyboard.isPressed('s');
 	}
 
 	private void processMouse() {

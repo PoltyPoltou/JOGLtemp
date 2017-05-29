@@ -15,6 +15,8 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.*;
 import com.jogamp.opengl.util.*;
 
+import inputs.*;
+
 @SuppressWarnings("unused")
 public class Game extends JFrame implements GLEventListener {
 
