@@ -1,6 +1,5 @@
 #version 450
 
-in vec4 color;
 in vec2 texCoord;
 out vec4 out_Color;
 

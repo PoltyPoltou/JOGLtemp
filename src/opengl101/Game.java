@@ -96,6 +96,7 @@ public class Game extends JFrame implements GLEventListener {
 	private Instant launch;
 	private Matrix4f modelMatrix, projectionMatrix;
 	private Camera view;
+	private Model mod;
 
 	public Game() {
 
@@ -193,7 +194,8 @@ public class Game extends JFrame implements GLEventListener {
 		gl.glEnable(GL4.GL_DEPTH_TEST);
 		shader = new ShaderPgrm(vertexPath, fragmentPath, gl);
 		createBuffers(gl);
-
+		mod = new Model("untitled.obj", gl);
+		mod.loadModel();
 		texture = new TexturePerso(imagePath, ".jpg", gl, false);
 		second = new TexturePerso(imgPath, ".png", gl, true);
 
@@ -205,15 +207,8 @@ public class Game extends JFrame implements GLEventListener {
 		shader.use(gl);
 		texture.bindTexture(gl, shader);
 		second.bindTexture(gl, shader);
-		gl.glBindVertexArray(VAO.get(0));
-		for (int i = 0; i < 10; i++) {
-			Duration t = Duration.between(launch, Instant.now());
-			Matrix4f mod = new Matrix4f().translate(cubes[i]);
-			mod.rotate(20 * i, new Vector3f(1, 0.3f, 0.5f)).rotate((float) (Math.toRadians(t.toMillis()) / 75), 0, 1, 0);
-			pushMatrix(mod, view.getLookAt(), projectionMatrix);
-			gl.glDrawArrays(GL4.GL_TRIANGLES, 0, 36);
-		}
-		gl.glBindVertexArray(0);
+		mod.bindVAO();
+		mod.drawModel();
 		gl.glFlush();
 
 	}

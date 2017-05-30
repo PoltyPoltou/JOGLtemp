@@ -5,17 +5,64 @@ import java.nio.*;
 import java.nio.file.*;
 import java.util.*;
 
+import org.joml.*;
+
 import com.jogamp.common.nio.*;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.util.*;
 
 public class Model {
 	private Path path;
-	private FloatBuffer VAO;
-
-	public static void main(String args[]) {
-		new Model("untitled.obj");
-	}
+	private FloatBuffer objectBuffer;
+	private IntBuffer VAO, VBO;
+	private GL4 gl;
+	private Matrix3f model;
+	private int verticesCount;
 
 	public Model(String file) {
+		readObgFileToObjectBuffer(file);
+	}
+
+	public Model(String file, GL4 gl) {
+		this.gl = gl;
+		genBuffers();
+		readObgFileToObjectBuffer(file);
+
+	}
+
+	// must have set a GL context !
+	private void genBuffers() {
+		VAO = GLBuffers.newDirectIntBuffer(1);
+		VBO = GLBuffers.newDirectIntBuffer(1);
+		gl.glGenVertexArrays(1, VAO);
+		gl.glGenBuffers(1, VBO);
+	}
+
+	// must have set a GL context !
+	public void loadModel() {
+		gl.glBindVertexArray(VAO.get(0));
+		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO.get(0));
+		gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.capacity() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
+		gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 0);// vertices
+		gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);// texture
+		gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 5 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
+		gl.glEnableVertexAttribArray(0);
+		gl.glEnableVertexAttribArray(1);
+		gl.glEnableVertexAttribArray(2);
+		gl.glBindVertexArray(0);
+	}
+
+	// must have set a GL context !
+	public void bindVAO() {
+		gl.glBindVertexArray(VAO.get(0));
+	}
+
+	// must have set a GL context !
+	public void drawModel() {
+		gl.glDrawArrays(GL4.GL_TRIANGLES, 0, verticesCount);
+	}
+
+	private void readObgFileToObjectBuffer(String file) {
 		//format off
 		FloatBuffer vertice = Buffers.newDirectFloatBuffer(5000), texture = Buffers.newDirectFloatBuffer(5000),
 					normal = Buffers.newDirectFloatBuffer(5000);
@@ -23,8 +70,8 @@ public class Model {
 		IntBuffer index = Buffers.newDirectIntBuffer(5000);
 		boolean v, vt, vn, f;
 		BufferedReader entry = null;
-		StringTokenizer s;
-		String line = " ";
+		StringTokenizer actualLine, faceIndex;
+		String line = " ", str;
 		path = Paths.get(file);
 		try {
 			entry = new BufferedReader(new FileReader(path.toFile()));
@@ -39,9 +86,9 @@ public class Model {
 			}
 
 			if (line != null) {
-				s = new StringTokenizer(line, " ");
+				actualLine = new StringTokenizer(line, " ");
 
-				String token = s.nextToken();
+				String token = actualLine.nextToken();
 				if (token.contains("vt")) {
 					v = false;
 					vt = true;
@@ -57,7 +104,7 @@ public class Model {
 					vt = false;
 					vn = false;
 					f = true;
-					s = new StringTokenizer(line.substring(2, line.length()), " ");
+					actualLine = new StringTokenizer(line.substring(2, line.length()), " ");
 				} else if (token.contains("v")) {
 					v = true;
 					vt = false;
@@ -65,22 +112,20 @@ public class Model {
 					f = false;
 				} else
 					continue;
-				int count = s.countTokens();
+				int count = actualLine.countTokens();
 				for (int i = 0; i < count; i++) {
 					if (v)
-						vertice.put(Float.parseFloat(s.nextToken()));
+						vertice.put(Float.parseFloat(actualLine.nextToken()));
 					else if (vt)
-						texture.put(Float.parseFloat(s.nextToken()));
+						texture.put(Float.parseFloat(actualLine.nextToken()));
 					else if (vn)
-						normal.put(Float.parseFloat(s.nextToken()));
+						normal.put(Float.parseFloat(actualLine.nextToken()));
 					else if (f) {
-						String str = s.nextToken();
-						StringTokenizer face = new StringTokenizer(str, "/");
-						//format off
-						index.put(Integer.parseInt(face.nextToken()));
-						index.put(Integer.parseInt(face.nextToken()));
-						index.put(Integer.parseInt(face.nextToken()));
-						//format on
+						str = actualLine.nextToken();
+						faceIndex = new StringTokenizer(str, "/");
+						index.put(Integer.parseInt(faceIndex.nextToken()));
+						index.put(Integer.parseInt(faceIndex.nextToken()));
+						index.put(Integer.parseInt(faceIndex.nextToken()));
 					}
 
 				}
@@ -91,20 +136,46 @@ public class Model {
 		texture.flip();
 		normal.flip();
 		index.flip();
-		VAO = Buffers.newDirectFloatBuffer(vertice.limit() + texture.limit() + normal.limit());
-		for (int i = 0; i < VAO.capacity(); i += 3) {
+		float[] a = new float[index.limit() * 8 / 3];
+		objectBuffer = FloatBuffer.wrap(a);
+		for (int i = 0; i < index.limit(); i += 3) {
 			//format off
-			VAO.put(vertice.get((index.get(i) - 1) * 3));
-			VAO.put(vertice.get((index.get(i) - 1) * 3 + 1));
-			VAO.put(vertice.get((index.get(i) - 1) * 3 + 2));
+			objectBuffer.put(vertice.get((index.get(i) - 1) * 3));
+			objectBuffer.put(vertice.get((index.get(i) - 1) * 3 + 1));
+			objectBuffer.put(vertice.get((index.get(i) - 1) * 3 + 2));
 
-			VAO.put(texture.get((index.get(i  + 1) - 1) * 2));
-			VAO.put(texture.get((index.get(i  + 1) - 1) * 2) + 1);
+			objectBuffer.put(texture.get((index.get(i  + 1) - 1) * 2));
+			objectBuffer.put(texture.get((index.get(i  + 1) - 1) * 2) + 1);
 
-			VAO.put(normal.get ((index.get(i  + 2) - 1) * 3));
-			VAO.put(normal.get ((index.get(i  + 2) - 1) * 3 + 1));
-			VAO.put(normal.get ((index.get(i  + 2) - 1) * 3 + 2));
+			objectBuffer.put(normal.get ((index.get(i  + 2) - 1) * 3));
+			objectBuffer.put(normal.get ((index.get(i  + 2) - 1) * 3 + 1));
+			objectBuffer.put(normal.get ((index.get(i  + 2) - 1) * 3 + 2));
 			//format on
 		}
+		verticesCount = vertice.limit() / 3;
+	}
+
+	public FloatBuffer getVBO() {
+		return objectBuffer;
+	}
+
+	public IntBuffer getVAO() {
+		return VAO;
+	}
+
+	public void setModelMatrix(Matrix3f m) {
+		model.set(m);
+	}
+
+	public Matrix3f getModelMatrix() {
+		return model;
+	}
+
+	public float[] getArray() {
+		return objectBuffer.array();
+	}
+
+	public void setGl(GL4 gl) {
+		this.gl = gl;
 	}
 }
