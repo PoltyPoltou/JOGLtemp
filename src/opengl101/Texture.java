@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
 
-public class TexturePerso {
+public class Texture {
 	String imgPath;
 	IntBuffer textId;
 	Path file;
@@ -28,7 +28,7 @@ public class TexturePerso {
 		};
 	int textureUnit;
 
-	public TexturePerso(String imgPath, String fileExt, GL4 gl, boolean alpha) {
+	public Texture(String imgPath, String fileExt, GL4 gl, boolean alpha) {
 
 		InputStream stream = this.getClass().getResourceAsStream(imgPath);
 		DataBuffer buffer = null;

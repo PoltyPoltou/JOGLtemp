@@ -87,11 +87,11 @@ public class Game extends JFrame implements GLEventListener {
 	//format on
 	private IntBuffer VAO, VBO, EBO;
 	private GL4 gl;
-	private String vertexPath = "vertex.shader", fragmentPath = "fragment.shader", imagePath = "container.jpg", imgPath = "awesomeface.png";
+	private String vertexPath = "vertex.shader", fragmentPath = "fragment.shader", imagePath = "testtext.png", imgPath = "awesomeface.png";
 	private GLCanvas canvas;
 	private final FPSAnimator anim;
 	private ShaderPgrm shader;
-	private TexturePerso texture, second;
+	private Texture texture, second;
 	private FloatBuffer matrixData;
 	private Instant launch;
 	private Matrix4f modelMatrix, projectionMatrix;
@@ -195,11 +195,9 @@ public class Game extends JFrame implements GLEventListener {
 		gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		gl.glEnable(GL4.GL_DEPTH_TEST);
 		shader = new ShaderPgrm(vertexPath, fragmentPath, gl);
-		createBuffers(gl);
 		mod = new Model("untitled.obj", gl);
 		mod.loadModel();
-		texture = new TexturePerso(imagePath, ".jpg", gl, false);
-		second = new TexturePerso(imgPath, ".png", gl, true);
+		texture = new Texture(imagePath, ".jpg", gl, true);
 
 	}
 
@@ -207,7 +205,6 @@ public class Game extends JFrame implements GLEventListener {
 	public void display(GLAutoDrawable drawable) {
 		gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
 		shader.use(gl);
-		texture.bindTexture(gl, shader);
 		texture.bindTexture(gl, shader);
 		pushMatrix(new Matrix4f(), view.getLookAt(), projectionMatrix);
 		mod.bindVAO();

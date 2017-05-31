@@ -57,10 +57,10 @@ public class Model {
 		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO.get(0));
 		gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.limit() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
 		gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);// vertices
-		// gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);// texture
+		gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);// texture
 		// gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 8 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
 		gl.glEnableVertexAttribArray(0);
-		// gl.glEnableVertexAttribArray(1);
+		gl.glEnableVertexAttribArray(1);
 		// gl.glEnableVertexAttribArray(2);
 		gl.glBindVertexArray(0);
 	}
