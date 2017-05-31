@@ -1,29 +1,28 @@
-package opengl101;
+package graphicEngine;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.IntBuffer;
+import java.io.*;
+import java.nio.*;
 
-import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.util.GLBuffers;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.util.*;
 
-public class ShaderPgrm {
+public class ShaderProgram {
 
 	int vertexId, fragmentId, pgrmId;
 	String vertexPath, fragmentPath;
+	GL4 gl;
 
-	public ShaderPgrm() {
+	public ShaderProgram(String vertexPath, String fragmentPath, GL4 gl) {
 
-	}
-
-	public ShaderPgrm(String vertexPath, String fragmentPath, GL4 gl) {
-		String str;
-		IntBuffer errorBfr = GLBuffers.newDirectIntBuffer(1);
-		str = loadStringFileFromCurrentPackage(vertexPath);
+		this.gl = gl;
 		this.vertexPath = vertexPath;
 		this.fragmentPath = fragmentPath;
+		loadVertexAndFragment();
+	}
+
+	private void loadVertexAndFragment() {
+		String str = loadStringFileFromCurrentPackage(vertexPath);;
+		IntBuffer errorBfr = GLBuffers.newDirectIntBuffer(1);
 		vertexId = gl.glCreateShader(GL4.GL_VERTEX_SHADER);
 		gl.glShaderSource(vertexId, 1, new String[]
 			{

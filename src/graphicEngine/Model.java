@@ -1,4 +1,4 @@
-package opengl101;
+package graphicEngine;
 
 import java.io.*;
 import java.nio.*;
@@ -18,20 +18,21 @@ public class Model {
 	private GL4 gl;
 	private Matrix4f model;
 	private int verticesCount;
-
-	public Model(String file) {
-		model = new Matrix4f();
-		readObgFileToObjectBuffer(file);
-	}
-
-	public Model(String file, Matrix4f model) {
-		model.get(this.model);
-		readObgFileToObjectBuffer(file);
-	}
+	private Texture texture;
+	private ShaderProgram shader;
 
 	public Model(String file, GL4 gl) {
 		model = new Matrix4f();
 		this.gl = gl;
+		genBuffers();
+		readObgFileToObjectBuffer(file);
+	}
+
+	public Model(String file, GL4 gl, Texture t, ShaderProgram s) {
+		this.model = new Matrix4f();
+		this.gl = gl;
+		this.shader = s;
+		this.texture = t;
 		genBuffers();
 		readObgFileToObjectBuffer(file);
 	}

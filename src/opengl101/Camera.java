@@ -89,7 +89,6 @@ public class Camera implements Runnable {
 			processMouse();
 			move();
 			rotate();
-			System.out.println(frontV);
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {

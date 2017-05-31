@@ -1,18 +1,14 @@
-package opengl101;
+package graphicEngine;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.awt.image.*;
+import java.io.*;
+import java.nio.*;
+import java.nio.file.*;
 
-import javax.imageio.ImageIO;
+import javax.imageio.*;
 
-import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.util.GLBuffers;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.util.*;
 
 public class Texture {
 	String imgPath;
@@ -81,13 +77,13 @@ public class Texture {
 		return textId.get(0);
 	}
 
-	void bindTexture(GL4 gl, ShaderPgrm shader) {
+	public void bindTexture(GL4 gl, ShaderProgram shader) {
 		gl.glActiveTexture(GL4.GL_TEXTURE0 + textureUnit);
 		gl.glBindTexture(GL4.GL_TEXTURE_2D, textId.get(0));
 		gl.glUniform1i(gl.glGetUniformLocation(shader.getPgrmId(), str[textureUnit]), textureUnit);
 	}
 
-	void unBindTexture(GL4 gl) {
+	public void unBindTexture(GL4 gl) {
 		gl.glActiveTexture(GL4.GL_TEXTURE0 + textureUnit);
 		gl.glBindTexture(GL4.GL_TEXTURE_2D, 0);
 	}

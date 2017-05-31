@@ -15,6 +15,7 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.*;
 import com.jogamp.opengl.util.*;
 
+import graphicEngine.*;
 import inputs.*;
 
 @SuppressWarnings("unused")
@@ -90,7 +91,7 @@ public class Game extends JFrame implements GLEventListener {
 	private String vertexPath = "vertex.shader", fragmentPath = "fragment.shader", imagePath = "testtext.png", imgPath = "awesomeface.png";
 	private GLCanvas canvas;
 	private final FPSAnimator anim;
-	private ShaderPgrm shader;
+	private ShaderProgram shader;
 	private Texture texture, second;
 	private FloatBuffer matrixData;
 	private Instant launch;
@@ -194,8 +195,8 @@ public class Game extends JFrame implements GLEventListener {
 		System.out.println(gl.glGetString(GL.GL_VERSION));
 		gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		gl.glEnable(GL4.GL_DEPTH_TEST);
-		shader = new ShaderPgrm(vertexPath, fragmentPath, gl);
-		mod = new Model("untitled.obj", gl);
+		shader = new ShaderProgram(vertexPath, fragmentPath, gl);
+		mod = new Model("testobj.obj", gl);
 		mod.loadModel();
 		texture = new Texture(imagePath, ".jpg", gl, true);
 
