@@ -97,6 +97,7 @@ public class Game extends JFrame implements GLEventListener {
 	private Matrix4f modelMatrix, projectionMatrix;
 	private Camera view;
 	private Model mod;
+	int i = 0;
 
 	public Game() {
 
@@ -126,8 +127,9 @@ public class Game extends JFrame implements GLEventListener {
 		canvas.requestFocus();
 		// matrix math
 		matrixData = Buffers.newDirectFloatBuffer(16);
-		modelMatrix = new Matrix4f().rotation((float) Math.toRadians(-55.0f), new Vector3f(1, 0, 0)).scale(0.25f);
 		projectionMatrix = new Matrix4f().perspective((float) Math.toRadians(45), this.width / this.height, 0.1f, 100);
+
+		modelMatrix = new Matrix4f().rotation((float) Math.toRadians(-55.0f), new Vector3f(1, 0, 0)).scale(2);
 
 		launch = Instant.now();
 
@@ -155,11 +157,11 @@ public class Game extends JFrame implements GLEventListener {
 
 		gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 0);
 		// gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
-		gl.glVertexAttribPointer(2, 2, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
+		// gl.glVertexAttribPointer(2, 2, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
 
 		gl.glEnableVertexAttribArray(0);
 		// gl.glEnableVertexAttribArray(1);
-		gl.glEnableVertexAttribArray(2);
+		// gl.glEnableVertexAttribArray(2);
 		gl.glBindVertexArray(0);
 		// FloatBuffer colorBuffer =
 		// GLBuffers.newDirectFloatBuffer(verticesColor);
@@ -206,7 +208,8 @@ public class Game extends JFrame implements GLEventListener {
 		gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
 		shader.use(gl);
 		texture.bindTexture(gl, shader);
-		second.bindTexture(gl, shader);
+		texture.bindTexture(gl, shader);
+		pushMatrix(new Matrix4f(), view.getLookAt(), projectionMatrix);
 		mod.bindVAO();
 		mod.drawModel();
 		gl.glFlush();

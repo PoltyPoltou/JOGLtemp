@@ -73,12 +73,13 @@ public class Camera implements Runnable {
 			// Moving in X axis means a Y axis rotation
 			Ry = -Math.toRadians(m.getX() - m.getComponent().getWidth() / 2) * speedRotation;
 			Rx = -Math.toRadians(m.getY() - m.getComponent().getHeight() / 2) * speedRotation;
+			mouse.centerMouse();
 		} else {
 			Rx = 0;
 			Ry = 0;
 			Rz = 0;
 		}
-		mouse.centerMouse();
+
 	}
 
 	@Override
@@ -88,6 +89,7 @@ public class Camera implements Runnable {
 			processMouse();
 			move();
 			rotate();
+			System.out.println(frontV);
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {

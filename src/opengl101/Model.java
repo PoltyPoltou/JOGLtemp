@@ -16,18 +16,31 @@ public class Model {
 	private FloatBuffer objectBuffer;
 	private IntBuffer VAO, VBO;
 	private GL4 gl;
-	private Matrix3f model;
+	private Matrix4f model;
 	private int verticesCount;
 
 	public Model(String file) {
+		model = new Matrix4f();
+		readObgFileToObjectBuffer(file);
+	}
+
+	public Model(String file, Matrix4f model) {
+		model.get(this.model);
 		readObgFileToObjectBuffer(file);
 	}
 
 	public Model(String file, GL4 gl) {
+		model = new Matrix4f();
 		this.gl = gl;
 		genBuffers();
 		readObgFileToObjectBuffer(file);
+	}
 
+	public Model(String file, GL4 gl, Matrix4f model) {
+		model.get(this.model);
+		this.gl = gl;
+		genBuffers();
+		readObgFileToObjectBuffer(file);
 	}
 
 	// must have set a GL context !
@@ -42,13 +55,13 @@ public class Model {
 	public void loadModel() {
 		gl.glBindVertexArray(VAO.get(0));
 		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO.get(0));
-		gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.capacity() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
-		gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 0);// vertices
-		gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);// texture
-		gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 5 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
+		gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.limit() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
+		gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);// vertices
+		// gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);// texture
+		// gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 8 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
 		gl.glEnableVertexAttribArray(0);
-		gl.glEnableVertexAttribArray(1);
-		gl.glEnableVertexAttribArray(2);
+		// gl.glEnableVertexAttribArray(1);
+		// gl.glEnableVertexAttribArray(2);
 		gl.glBindVertexArray(0);
 	}
 
@@ -137,7 +150,7 @@ public class Model {
 		normal.flip();
 		index.flip();
 		float[] a = new float[index.limit() * 8 / 3];
-		objectBuffer = FloatBuffer.wrap(a);
+		objectBuffer = GLBuffers.newDirectFloatBuffer(a);
 		for (int i = 0; i < index.limit(); i += 3) {
 			//format off
 			objectBuffer.put(vertice.get((index.get(i) - 1) * 3));
@@ -152,7 +165,9 @@ public class Model {
 			objectBuffer.put(normal.get ((index.get(i  + 2) - 1) * 3 + 2));
 			//format on
 		}
-		verticesCount = vertice.limit() / 3;
+		objectBuffer.flip();
+		verticesCount = index.limit() / 3;
+		System.out.println(verticesCount);
 	}
 
 	public FloatBuffer getVBO() {
@@ -167,7 +182,7 @@ public class Model {
 		model.set(m);
 	}
 
-	public Matrix3f getModelMatrix() {
+	public Matrix4f getModelMatrix() {
 		return model;
 	}
 
