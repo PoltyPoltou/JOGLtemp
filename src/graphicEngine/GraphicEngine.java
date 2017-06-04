@@ -4,6 +4,8 @@ import org.joml.*;
 
 import com.jogamp.opengl.*;
 
+import opengl101.*;
+
 public class GraphicEngine {
 	private Scene scene;
 	private Camera camera;

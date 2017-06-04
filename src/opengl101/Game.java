@@ -88,16 +88,16 @@ public class Game extends JFrame implements GLEventListener {
 	//format on
 	private IntBuffer VAO, VBO, EBO;
 	private GL4 gl;
-	private String vertexPath = "vertex.shader", fragmentPath = "fragment.shader", imagePath = "textureUV.png", modelPath = "untitled.obj";
+	private String vertexPath = "container.vertex", fragmentPath = "container.fragment", imagePath = "container.png", modelPath = "untitled.obj";
 	private GLCanvas canvas;
 	private final FPSAnimator anim;
-	private ShaderProgram shader;
+	private ShaderProgram shader, lightShader;
 	private Texture texture, second;
 	private FloatBuffer matrixData;
 	private Instant launch;
 	private Matrix4f modelMatrix, projectionMatrix;
 	private Camera view;
-	private Model mod;
+	private Model container, light;
 	int i = 0;
 
 	public Game() {
@@ -176,15 +176,17 @@ public class Game extends JFrame implements GLEventListener {
 
 	}
 
-	private void pushMatrix(Matrix4f model, Matrix4f view, Matrix4f proj) {
-		int prgrmId = shader.getPgrmId();
+	private void pushMatrix(Matrix4f model, Matrix4f view, Matrix4f proj, ShaderProgram s) {
+		int prgrmId = s.getPgrmId();
 		model.get(matrixData);
 		gl.glUniformMatrix4fv(gl.glGetUniformLocation(prgrmId, "uni_model"), 1, false, matrixData);
 		view.get(matrixData);
 		gl.glUniformMatrix4fv(gl.glGetUniformLocation(prgrmId, "uni_view"), 1, false, matrixData);
 		proj.get(matrixData);
 		gl.glUniformMatrix4fv(gl.glGetUniformLocation(prgrmId, "uni_proj"), 1, false, matrixData);
-
+		Matrix3f normalMatrix = new Matrix3f(model.invert().transpose());
+		normalMatrix.get(matrixData);
+		gl.glUniformMatrix3fv(gl.glGetUniformLocation(prgrmId, "uni_normalMatrix"), 1, false, matrixData);
 	}
 
 	@Override
@@ -195,20 +197,44 @@ public class Game extends JFrame implements GLEventListener {
 		gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		gl.glEnable(GL4.GL_DEPTH_TEST);
 		shader = new ShaderProgram(vertexPath, fragmentPath, gl);
-		texture = new Texture(imagePath, gl);
-		mod = new Model(modelPath, gl, texture, shader);
-		mod.loadModel();
-
+		lightShader = new ShaderProgram(vertexPath, "light.fragment", gl);
+		//format off
+		texture = new Texture(new String[] {imagePath,"container_specular.png"}, new String[] {"diffuse","specular"}, gl);
+		//format on
+		container = new Model(modelPath, gl, null, shader);
+		container.loadModel();
+		light = new Model("test.obj", gl, null, lightShader);
+		light.loadModel();
+		shader.use(gl);
+		shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		pushMatrix(new Matrix4f().translation(0, 0, -1), view.getLookAt(), projectionMatrix, shader);
+		lightShader.use(gl);
+		pushMatrix(new Matrix4f().translation(0, 1, 0.5f).scale(1f / 4), view.getLookAt(), projectionMatrix, lightShader);
 	}
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
+		double b = Duration.between(launch, Instant.now()).toMillis() * 0.05;
+		float a = (float) Math.cos(b);
+		float c = (float) Math.sin(b);
+
 		shader.use(gl);
+		shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+		shader.setFloat("material.shininess", 32.0f);
+		shader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
+		shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
+		shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		shader.setVec3("viewPos", view.getPosition());
+		shader.setVec3("light.position", 0, 0, 4);
+		pushMatrix(new Matrix4f().rotation((float) Math.toRadians(b), 0, 1, 0), view.getLookAt(), projectionMatrix, shader);
 		texture.bindTexture(gl, shader);
-		pushMatrix(new Matrix4f(), view.getLookAt(), projectionMatrix);
-		mod.bindVAO();
-		mod.drawModel();
+		container.drawModel();
+		lightShader.use(gl);
+		lightShader.setVec3("uni_color", new Vector3f(1, 1, 1));
+		pushMatrix(new Matrix4f().translation(0, 0, 4).scale(1f / 4), view.getLookAt(), projectionMatrix, lightShader);
+		light.drawModel();
 		gl.glFlush();
 
 	}

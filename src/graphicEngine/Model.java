@@ -10,6 +10,8 @@ import org.joml.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.*;
 
+import opengl101.*;
+
 public class Model {
 	private Path path;
 	private FloatBuffer objectBuffer;
@@ -19,6 +21,7 @@ public class Model {
 	private int verticesCount;
 	private Texture texture;
 	private ShaderProgram shader;
+	private boolean text;
 
 	public Model(String file, GL4 gl) {
 		model = new Matrix4f();
@@ -53,26 +56,34 @@ public class Model {
 
 	// must have set a GL context !
 	public void loadModel() {
-		gl.glBindVertexArray(VAO.get(0));
-		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO.get(0));
-		gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.limit() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
-		gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);// vertices
-		gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);// texture
-		gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 8 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
-		gl.glEnableVertexAttribArray(0);
-		gl.glEnableVertexAttribArray(1);
-		gl.glEnableVertexAttribArray(2);
-		gl.glBindVertexArray(0);
-	}
-
-	// must have set a GL context !
-	public void bindVAO() {
-		gl.glBindVertexArray(VAO.get(0));
+		if (text) {
+			gl.glBindVertexArray(VAO.get(0));
+			gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO.get(0));
+			gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.limit() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
+			gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);// vertices
+			gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);// texture
+			gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 8 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
+			gl.glEnableVertexAttribArray(0);
+			gl.glEnableVertexAttribArray(1);
+			gl.glEnableVertexAttribArray(2);
+			gl.glBindVertexArray(0);
+		} else {
+			gl.glBindVertexArray(VAO.get(0));
+			gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO.get(0));
+			gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.limit() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
+			gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);// vertices
+			gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 6 * Float.BYTES, 3 * Float.BYTES);// normal vertices normalized
+			gl.glEnableVertexAttribArray(0);
+			gl.glEnableVertexAttribArray(2);
+			gl.glBindVertexArray(0);
+		}
 	}
 
 	// must have set a GL context !
 	public void drawModel() {
+		gl.glBindVertexArray(VAO.get(0));
 		gl.glDrawArrays(GL4.GL_TRIANGLES, 0, verticesCount);
+		gl.glBindVertexArray(0);
 	}
 
 	private void readObgFileToObjectBuffer(String file) {
@@ -129,12 +140,18 @@ public class Model {
 					if (f) {
 						str = actualLine.nextToken();
 						faceIndex = new StringTokenizer(str, "/");
-						index.put(Integer.parseInt(faceIndex.nextToken()));
-						index.put(Integer.parseInt(faceIndex.nextToken()));
-						index.put(Integer.parseInt(faceIndex.nextToken()));
+						if (faceIndex.countTokens() == 3) {
+							index.put(Integer.parseInt(faceIndex.nextToken()));
+							index.put(Integer.parseInt(faceIndex.nextToken()));
+							index.put(Integer.parseInt(faceIndex.nextToken()));
+							text = true;
+						} else {
+							index.put(Integer.parseInt(faceIndex.nextToken()));
+							index.put(Integer.parseInt(faceIndex.nextToken()));
+							text = false;
+						}
 					} else {
 						data.put(Float.parseFloat(actualLine.nextToken()));
-						data.get(data.position());
 					}
 
 				}
@@ -143,24 +160,42 @@ public class Model {
 		}
 		data.flip();
 		index.flip();
-		float[] z = new float[index.limit() * 8 / 3];
-		objectBuffer = FloatBuffer.wrap(z);
-		for (int i = 0; i < index.limit(); i += 3) {
-			//format off
-			objectBuffer.put(data.get((index.get(i)-1)*3 ));
-			objectBuffer.put(data.get((index.get(i)-1)*3 +1));
-			objectBuffer.put(data.get((index.get(i)-1)*3 +2));
+		if (text) {
+			float[] z = new float[index.limit() * 8 / 3];
+			objectBuffer = FloatBuffer.wrap(z);
+			for (int i = 0; i < index.limit(); i += 3) {
+				//format off
+				objectBuffer.put(data.get((index.get(i)-1)*3 ));
+				objectBuffer.put(data.get((index.get(i)-1)*3 +1));
+				objectBuffer.put(data.get((index.get(i)-1)*3 +2));
 
-			objectBuffer.put(data.get((index.get(i+1)-1)*2    +endv));
-			objectBuffer.put(data.get((index.get(i+1)-1)*2 +1 +endv));
+				objectBuffer.put(data.get((index.get(i+1)-1)*2    +endv));
+				objectBuffer.put(data.get((index.get(i+1)-1)*2 +1 +endv));
 
-			objectBuffer.put(data.get((index.get(i+2)-1)*3    +endvt));
-			objectBuffer.put(data.get((index.get(i+2)-1)*3 +1 +endvt));
-			objectBuffer.put(data.get((index.get(i+2)-1)*3 +2 +endvt));
-			//format on
+				objectBuffer.put(data.get((index.get(i+2)-1)*3    +endvt));
+				objectBuffer.put(data.get((index.get(i+2)-1)*3 +1 +endvt));
+				objectBuffer.put(data.get((index.get(i+2)-1)*3 +2 +endvt));
+				//format on
+			}
+			verticesCount = index.limit() / 3;
+		} else {
+			float[] z = new float[index.limit() * 3];
+			objectBuffer = FloatBuffer.wrap(z);
+			for (int i = 0; i < index.limit(); i += 2) {
+				//format off
+				objectBuffer.put(data.get((index.get(i)-1)*3 ));
+				objectBuffer.put(data.get((index.get(i)-1)*3 +1));
+				objectBuffer.put(data.get((index.get(i)-1)*3 +2));
+
+				objectBuffer.put(data.get((index.get(i+1)-1)*6   ));
+				objectBuffer.put(data.get((index.get(i+1)-1)*6 +1));
+				objectBuffer.put(data.get((index.get(i+1)-1)*6 +2));
+				//format on
+			}
+			verticesCount = index.limit() / 2;
 		}
 		objectBuffer.flip();
-		verticesCount = index.limit() / 3;
+
 	}
 
 	public FloatBuffer getVBO() {
@@ -171,10 +206,6 @@ public class Model {
 		return VAO;
 	}
 
-	public void setModelMatrix(Matrix3f m) {
-		model.set(m);
-	}
-
 	public Matrix4f getModelMatrix() {
 		return model;
 	}
@@ -183,7 +214,27 @@ public class Model {
 		return objectBuffer.array();
 	}
 
+	public Texture getTexture() {
+		return texture;
+	}
+
+	public ShaderProgram getShader() {
+		return shader;
+	}
+
+	public void setTexture(Texture texture) {
+		this.texture = texture;
+	}
+
+	public void setShader(ShaderProgram shader) {
+		this.shader = shader;
+	}
+
 	public void setGl(GL4 gl) {
 		this.gl = gl;
+	}
+
+	public void setModelMatrix(Matrix3f m) {
+		model.set(m);
 	}
 }

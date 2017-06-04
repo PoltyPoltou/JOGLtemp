@@ -7,6 +7,8 @@ import javax.swing.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.*;
 
+import opengl101.*;
+
 public class Renderer extends JFrame {
 
 	public static void main(String[] args) {

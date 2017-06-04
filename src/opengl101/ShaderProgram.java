@@ -1,7 +1,9 @@
-package graphicEngine;
+package opengl101;
 
 import java.io.*;
 import java.nio.*;
+
+import org.joml.*;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.*;
@@ -96,4 +98,15 @@ public class ShaderProgram {
 		return pgrmId;
 	}
 
+	public void setVec3(String name, float a, float b, float c) {
+		gl.glUniform3f(gl.glGetUniformLocation(pgrmId, name), a, b, c);
+	}
+
+	public void setVec3(String name, Vector3f v) {
+		gl.glUniform3f(gl.glGetUniformLocation(pgrmId, name), v.x, v.y, v.z);
+	}
+
+	public void setFloat(String name, float f) {
+		gl.glUniform1f(gl.glGetUniformLocation(pgrmId, name), f);
+	}
 }
