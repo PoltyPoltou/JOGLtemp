@@ -88,7 +88,7 @@ public class Game extends JFrame implements GLEventListener {
 	//format on
 	private IntBuffer VAO, VBO, EBO;
 	private GL4 gl;
-	private String vertexPath = "vertex.shader", fragmentPath = "fragment.shader", imagePath = "testtext.png", imgPath = "awesomeface.png";
+	private String vertexPath = "vertex.shader", fragmentPath = "fragment.shader", imagePath = "textureUV.png", modelPath = "untitled.obj";
 	private GLCanvas canvas;
 	private final FPSAnimator anim;
 	private ShaderProgram shader;
@@ -191,14 +191,13 @@ public class Game extends JFrame implements GLEventListener {
 	public void init(GLAutoDrawable drawable) {
 		gl = drawable.getGL().getGL4();
 
-		gl.glGetString(GL.GL_VERSION);
 		System.out.println(gl.glGetString(GL.GL_VERSION));
 		gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		gl.glEnable(GL4.GL_DEPTH_TEST);
 		shader = new ShaderProgram(vertexPath, fragmentPath, gl);
-		mod = new Model("testobj.obj", gl);
+		texture = new Texture(imagePath, gl);
+		mod = new Model(modelPath, gl, texture, shader);
 		mod.loadModel();
-		texture = new Texture(imagePath, ".jpg", gl, true);
 
 	}
 

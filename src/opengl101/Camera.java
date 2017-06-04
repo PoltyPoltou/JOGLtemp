@@ -28,6 +28,7 @@ public class Camera implements Runnable {
 		this.mouse = mouse;
 		thread = new Thread(this);
 		thread.start();
+		updateDirections();
 	}
 
 	private void move() {
@@ -50,9 +51,12 @@ public class Camera implements Runnable {
 
 	private void rotate() {
 		Vector3f v = new Vector3f(frontDirection);
+		Quaterniond q = new Quaterniond();
 		Matrix3d m = new Matrix3d();
 		if (Rx != 0 || Ry != 0 || Rz != 0) {
-			m.rotateXYZ(Rx, Ry, Rz);
+			q.rotateX(Rx);
+			q.rotateY(Ry);
+			q.get(m);
 			frontDirection = v.mul(m);
 			updateDirections();
 		}

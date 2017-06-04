@@ -7,7 +7,6 @@ import java.util.*;
 
 import org.joml.*;
 
-import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.*;
 
@@ -59,10 +58,10 @@ public class Model {
 		gl.glBufferData(GL.GL_ARRAY_BUFFER, objectBuffer.limit() * Float.BYTES, objectBuffer, GL.GL_STATIC_DRAW);
 		gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);// vertices
 		gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);// texture
-		// gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 8 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
+		gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, true, 8 * Float.BYTES, 5 * Float.BYTES);// normal vertices normalized
 		gl.glEnableVertexAttribArray(0);
 		gl.glEnableVertexAttribArray(1);
-		// gl.glEnableVertexAttribArray(2);
+		gl.glEnableVertexAttribArray(2);
 		gl.glBindVertexArray(0);
 	}
 
@@ -77,16 +76,29 @@ public class Model {
 	}
 
 	private void readObgFileToObjectBuffer(String file) {
-		//format off
-		FloatBuffer vertice = Buffers.newDirectFloatBuffer(5000), texture = Buffers.newDirectFloatBuffer(5000),
-					normal = Buffers.newDirectFloatBuffer(5000);
-		//format on
-		IntBuffer index = Buffers.newDirectIntBuffer(5000);
-		boolean v, vt, vn, f;
+
+		boolean f = false;
+		int size = 0, endv = 0, endvt = 0;
 		BufferedReader entry = null;
 		StringTokenizer actualLine, faceIndex;
 		String line = " ", str;
 		path = Paths.get(file);
+		LineNumberReader lnr;
+		try {
+			lnr = new LineNumberReader(new FileReader(new File(file)));
+			lnr.skip(Long.MAX_VALUE);
+			size = (lnr.getLineNumber() + 1) * 3;
+			lnr.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		float[] b = new float[size];
+		FloatBuffer data = FloatBuffer.wrap(b);
+		int[] a = new int[size];
+		IntBuffer index = IntBuffer.wrap(a);
+
 		try {
 			entry = new BufferedReader(new FileReader(path.toFile()));
 		} catch (FileNotFoundException e) {
@@ -103,72 +115,52 @@ public class Model {
 				actualLine = new StringTokenizer(line, " ");
 
 				String token = actualLine.nextToken();
-				if (token.contains("vt")) {
-					v = false;
-					vt = true;
-					vn = false;
-					f = false;
-				} else if (token.contains("vn")) {
-					v = false;
-					vt = false;
-					vn = true;
-					f = false;
-				} else if (token.contains("f")) {
-					v = false;
-					vt = false;
-					vn = false;
+				if (token.contains("f")) {
 					f = true;
 					actualLine = new StringTokenizer(line.substring(2, line.length()), " ");
-				} else if (token.contains("v")) {
-					v = true;
-					vt = false;
-					vn = false;
-					f = false;
-				} else
+				} else if (token.contains("vt"))
+					endvt = data.position() + 2;
+				else if (token.contains("v") && !token.contains("vn"))
+					endv = data.position() + 3;
+				else if (!token.contains("v"))
 					continue;
 				int count = actualLine.countTokens();
 				for (int i = 0; i < count; i++) {
-					if (v)
-						vertice.put(Float.parseFloat(actualLine.nextToken()));
-					else if (vt)
-						texture.put(Float.parseFloat(actualLine.nextToken()));
-					else if (vn)
-						normal.put(Float.parseFloat(actualLine.nextToken()));
-					else if (f) {
+					if (f) {
 						str = actualLine.nextToken();
 						faceIndex = new StringTokenizer(str, "/");
 						index.put(Integer.parseInt(faceIndex.nextToken()));
 						index.put(Integer.parseInt(faceIndex.nextToken()));
 						index.put(Integer.parseInt(faceIndex.nextToken()));
+					} else {
+						data.put(Float.parseFloat(actualLine.nextToken()));
+						data.get(data.position());
 					}
 
 				}
 
 			}
 		}
-		vertice.flip();
-		texture.flip();
-		normal.flip();
+		data.flip();
 		index.flip();
-		float[] a = new float[index.limit() * 8 / 3];
-		objectBuffer = GLBuffers.newDirectFloatBuffer(a);
+		float[] z = new float[index.limit() * 8 / 3];
+		objectBuffer = FloatBuffer.wrap(z);
 		for (int i = 0; i < index.limit(); i += 3) {
 			//format off
-			objectBuffer.put(vertice.get((index.get(i) - 1) * 3));
-			objectBuffer.put(vertice.get((index.get(i) - 1) * 3 + 1));
-			objectBuffer.put(vertice.get((index.get(i) - 1) * 3 + 2));
+			objectBuffer.put(data.get((index.get(i)-1)*3 ));
+			objectBuffer.put(data.get((index.get(i)-1)*3 +1));
+			objectBuffer.put(data.get((index.get(i)-1)*3 +2));
 
-			objectBuffer.put(texture.get((index.get(i  + 1) - 1) * 2));
-			objectBuffer.put(texture.get((index.get(i  + 1) - 1) * 2) + 1);
+			objectBuffer.put(data.get((index.get(i+1)-1)*2    +endv));
+			objectBuffer.put(data.get((index.get(i+1)-1)*2 +1 +endv));
 
-			objectBuffer.put(normal.get ((index.get(i  + 2) - 1) * 3));
-			objectBuffer.put(normal.get ((index.get(i  + 2) - 1) * 3 + 1));
-			objectBuffer.put(normal.get ((index.get(i  + 2) - 1) * 3 + 2));
+			objectBuffer.put(data.get((index.get(i+2)-1)*3    +endvt));
+			objectBuffer.put(data.get((index.get(i+2)-1)*3 +1 +endvt));
+			objectBuffer.put(data.get((index.get(i+2)-1)*3 +2 +endvt));
 			//format on
 		}
 		objectBuffer.flip();
 		verticesCount = index.limit() / 3;
-		System.out.println(verticesCount);
 	}
 
 	public FloatBuffer getVBO() {

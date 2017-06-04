@@ -11,6 +11,7 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.*;
 
 public class Texture {
+	static int PARAM_NEAREST = 0, PARAM_LINEAR = 1, PARAM_WIDTH = 2, PARAM_HEIGHT = 3, PARAM_MIPMAP = 4, PARAM_MIN_FILTER = 5, PARAM_MAG_FILTER = 6;
 	String imgPath;
 	IntBuffer textId;
 	Path file;
@@ -24,37 +25,51 @@ public class Texture {
 		};
 	int textureUnit;
 
-	public Texture(String imgPath, String fileExt, GL4 gl, boolean alpha) {
+	public Texture(String imgPath, GL4 gl) {
 
 		InputStream stream = this.getClass().getResourceAsStream(imgPath);
 		DataBuffer buffer = null;
+		boolean alpha;
 		textId = GLBuffers.newDirectIntBuffer(1);
 		textureUnit = nbTextureUnit++;
-		int x = 0, y = 0, rgb, offset;
+		int x = 0, y = 0, rgb;
 		this.imgPath = imgPath;
 		this.file = Paths.get(imgPath);
-		if (alpha)
-			offset = 4;
-		else
-			offset = 3;
-
 		try {
 			img = ImageIO.read(stream);
 			buffer = img.getRaster().getDataBuffer();
 		} catch (IOException e) {
 			System.out.println("ERROR:TEXTURE:IMAGE:LOADING:FAILED");
 		}
+		if (img.getAlphaRaster() == null)
+			alpha = false;
+		else
+			alpha = true;
 		byteBfr = GLBuffers.newDirectByteBuffer(buffer.getSize() * 4 / 3);
-
 		byteBfr.mark();
-		for (int i = 0; i < buffer.getSize(); i += offset) { // RGB is one byte Alpha one Red one Green one blue
-			rgb = img.getRGB(x, y);
-			byteBfr.putInt(rgb | 0xFF000000);
-			x++;
+		if (alpha) {
+			for (int i = 0; i < buffer.getSize(); i += 4) { // RGB is one byte Alpha one Red one Green one blue
+				rgb = img.getRGB(x, y);
+				byte a = (byte) (img.getAlphaRaster().getDataBuffer().getElem(i / 4));
+				int rgbalpha = (rgb & 0x00FFFFFF) | a << 24;
+				byteBfr.putInt(rgbalpha);
+				x++;
 
-			if (x == img.getWidth()) {
-				y++;
-				x = 0;
+				if (x == img.getWidth()) {
+					y++;
+					x = 0;
+				}
+			}
+		} else {
+			for (int i = 0; i < buffer.getSize(); i += 4) { // RGB is one byte Alpha one Red one Green one blue
+				rgb = img.getRGB(x, y);
+				byteBfr.putInt(rgb | 0xFF000000);
+				x++;
+
+				if (x == img.getWidth()) {
+					y++;
+					x = 0;
+				}
 			}
 		}
 		byteBfr.flip();
@@ -65,7 +80,10 @@ public class Texture {
 		gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_WRAP_T, GL4.GL_REPEAT);
 		gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR_MIPMAP_LINEAR);
 		gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-		gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGBA, img.getWidth(), img.getHeight(), 0, GL4.GL_BGRA, GL4.GL_UNSIGNED_BYTE, byteBfr);
+		if (alpha)
+			gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGBA, img.getWidth(), img.getHeight(), 0, GL4.GL_BGRA, GL4.GL_UNSIGNED_BYTE, byteBfr);
+		else
+			gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGBA, img.getWidth(), img.getHeight(), 0, GL4.GL_BGR, GL4.GL_UNSIGNED_BYTE, byteBfr);
 		gl.glGenerateMipmap(GL4.GL_TEXTURE_2D);
 
 		gl.glBindTexture(GL4.GL_TEXTURE_2D, 0);
