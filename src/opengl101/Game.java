@@ -202,23 +202,27 @@ public class Game extends JFrame implements GLEventListener {
 		shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		shader.setFloat("material.shininess", 32.0f);
-		shader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
-		shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
-		shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		shader.setVec3("pointLights[0].ambient", 0.1f, 0.1f, 0.1f);
+		shader.setVec3("pointLights[0].diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
+		shader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+		shader.setFloat("pointLights[0].constant", 1);
+		shader.setFloat("pointLights[0].linear", 0.14f);
+		shader.setFloat("pointLights[0].quadratic", 0.07f);
 		lightShader.setVec3("uni_color", 1, 1, 1);
 		light.setModelMatrix(new Matrix4f().translate(0, 0, 4));
-		container.setModelMatrix(new Matrix4f().rotate(0, 0, 1, 0).translate(0, 0, -1));
+		container.setModelMatrix(new Matrix4f().rotate((float) Math.PI, 0, 1, 0));
 	}
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
-		// double b = Duration.between(launch, Instant.now()).toMillis() * 0.0005;
-		// float a = (float) Math.cos(b);
+		double b = Duration.between(launch, Instant.now()).toMillis() * 0.005;
+		float a = (float) Math.cos(b);
 		// float c = (float) Math.sin(b);
 		shader.setVec3("viewPos", view.getPosition());
+		container.setModelMatrix(new Matrix4f().translate(0, 0, a));
 		Vector4f pos = new Vector4f().mul(light.getModelMatrix());
-		shader.setVec3("light.position", pos.x, pos.y, pos.z);
+		shader.setVec3("pointLights[0].position", pos.x, pos.y, pos.z);
 		pushMatrix(view.getLookAt(), projectionMatrix, container.getShader());
 		container.drawModel();
 		pushMatrix(view.getLookAt(), projectionMatrix, light.getShader());
