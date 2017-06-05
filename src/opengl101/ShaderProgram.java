@@ -10,12 +10,13 @@ import com.jogamp.opengl.util.*;
 
 public class ShaderProgram {
 
-	int vertexId, fragmentId, pgrmId;
-	String vertexPath, fragmentPath;
-	GL4 gl;
+	private int vertexId, fragmentId, pgrmId;
+	private String vertexPath, fragmentPath;
+	private GL4 gl;
+	private FloatBuffer matrixUniformBuffer;
 
 	public ShaderProgram(String vertexPath, String fragmentPath, GL4 gl) {
-
+		matrixUniformBuffer = GLBuffers.newDirectFloatBuffer(16);
 		this.gl = gl;
 		this.vertexPath = vertexPath;
 		this.fragmentPath = fragmentPath;
@@ -99,14 +100,29 @@ public class ShaderProgram {
 	}
 
 	public void setVec3(String name, float a, float b, float c) {
+		this.use(gl);
 		gl.glUniform3f(gl.glGetUniformLocation(pgrmId, name), a, b, c);
 	}
 
 	public void setVec3(String name, Vector3f v) {
+		this.use(gl);
 		gl.glUniform3f(gl.glGetUniformLocation(pgrmId, name), v.x, v.y, v.z);
 	}
 
 	public void setFloat(String name, float f) {
+		this.use(gl);
 		gl.glUniform1f(gl.glGetUniformLocation(pgrmId, name), f);
+	}
+
+	public void setMat4(String name, Matrix4f m) {
+		this.use(gl);
+		m.get(matrixUniformBuffer);
+		gl.glUniformMatrix4fv(gl.glGetUniformLocation(pgrmId, name), 1, false, matrixUniformBuffer);
+	}
+
+	public void setMat3(String name, Matrix3f m) {
+		this.use(gl);
+		m.get(matrixUniformBuffer);
+		gl.glUniformMatrix3fv(gl.glGetUniformLocation(pgrmId, name), 1, false, matrixUniformBuffer);
 	}
 }

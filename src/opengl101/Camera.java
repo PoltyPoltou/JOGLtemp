@@ -115,7 +115,7 @@ public class Camera implements Runnable {
 		position.add(v);
 	}
 
-	synchronized public Matrix4f getLookAt() {
+	public Matrix4f getLookAt() {
 		return lookAt = new Matrix4f().lookAt(position, new Vector3f().add(position).add(frontDirection), upDirection);
 	}
 

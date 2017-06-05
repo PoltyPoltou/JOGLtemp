@@ -18,6 +18,7 @@ public class Model {
 	private IntBuffer VAO, VBO;
 	private GL4 gl;
 	private Matrix4f model;
+	private Matrix3f normalMatrix;
 	private int verticesCount;
 	private Texture texture;
 	private ShaderProgram shader;
@@ -25,25 +26,32 @@ public class Model {
 
 	public Model(String file, GL4 gl) {
 		model = new Matrix4f();
+		normalMatrix = new Matrix3f();
 		this.gl = gl;
 		genBuffers();
 		readObgFileToObjectBuffer(file);
+		updateNormalMatrix();
 	}
 
 	public Model(String file, GL4 gl, Texture t, ShaderProgram s) {
 		this.model = new Matrix4f();
+		normalMatrix = new Matrix3f();
 		this.gl = gl;
 		this.shader = s;
 		this.texture = t;
+		text = true;
 		genBuffers();
 		readObgFileToObjectBuffer(file);
+		updateNormalMatrix();
 	}
 
 	public Model(String file, GL4 gl, Matrix4f model) {
-		model.get(this.model);
+		this.model = new Matrix4f(model);
+		normalMatrix = new Matrix3f();
 		this.gl = gl;
 		genBuffers();
 		readObgFileToObjectBuffer(file);
+		updateNormalMatrix();
 	}
 
 	// must have set a GL context !
@@ -82,8 +90,19 @@ public class Model {
 	// must have set a GL context !
 	public void drawModel() {
 		gl.glBindVertexArray(VAO.get(0));
+		shader.use(gl);
+		shader.setMat4("uni_model", model);
+		shader.setMat3("uni_normalMatrix", normalMatrix);
+		if (this.hasTexture()) {
+			texture.bindTexture(gl, shader);
+		}
 		gl.glDrawArrays(GL4.GL_TRIANGLES, 0, verticesCount);
 		gl.glBindVertexArray(0);
+	}
+
+	private void updateNormalMatrix() {
+		Matrix4f test = new Matrix4f(model);
+		normalMatrix = new Matrix3f(test.invert().transpose());
 	}
 
 	private void readObgFileToObjectBuffer(String file) {
@@ -222,8 +241,13 @@ public class Model {
 		return shader;
 	}
 
+	private boolean hasTexture() {
+		return text;
+	}
+
 	public void setTexture(Texture texture) {
 		this.texture = texture;
+		text = true;
 	}
 
 	public void setShader(ShaderProgram shader) {
@@ -234,7 +258,13 @@ public class Model {
 		this.gl = gl;
 	}
 
-	public void setModelMatrix(Matrix3f m) {
-		model.set(m);
+	public void setModelMatrix(Matrix4f m) {
+		model = new Matrix4f(m);
+		updateNormalMatrix();
+	}
+
+	public void transformModelMatrix(Matrix4f m) {
+		m.mul(model, model);
+		updateNormalMatrix();
 	}
 }

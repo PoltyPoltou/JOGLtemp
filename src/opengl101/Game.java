@@ -130,8 +130,6 @@ public class Game extends JFrame implements GLEventListener {
 		matrixData = Buffers.newDirectFloatBuffer(16);
 		projectionMatrix = new Matrix4f().perspective((float) Math.toRadians(45), this.width / this.height, 0.1f, 100);
 
-		modelMatrix = new Matrix4f().rotation((float) Math.toRadians(-55.0f), new Vector3f(1, 0, 0)).scale(2);
-
 		launch = Instant.now();
 
 	}
@@ -176,17 +174,13 @@ public class Game extends JFrame implements GLEventListener {
 
 	}
 
-	private void pushMatrix(Matrix4f model, Matrix4f view, Matrix4f proj, ShaderProgram s) {
+	private void pushMatrix(Matrix4f view, Matrix4f proj, ShaderProgram s) {
 		int prgrmId = s.getPgrmId();
-		model.get(matrixData);
-		gl.glUniformMatrix4fv(gl.glGetUniformLocation(prgrmId, "uni_model"), 1, false, matrixData);
+		s.use(gl);
 		view.get(matrixData);
 		gl.glUniformMatrix4fv(gl.glGetUniformLocation(prgrmId, "uni_view"), 1, false, matrixData);
 		proj.get(matrixData);
 		gl.glUniformMatrix4fv(gl.glGetUniformLocation(prgrmId, "uni_proj"), 1, false, matrixData);
-		Matrix3f normalMatrix = new Matrix3f(model.invert().transpose());
-		normalMatrix.get(matrixData);
-		gl.glUniformMatrix3fv(gl.glGetUniformLocation(prgrmId, "uni_normalMatrix"), 1, false, matrixData);
 	}
 
 	@Override
@@ -199,41 +193,35 @@ public class Game extends JFrame implements GLEventListener {
 		shader = new ShaderProgram(vertexPath, fragmentPath, gl);
 		lightShader = new ShaderProgram(vertexPath, "light.fragment", gl);
 		//format off
-		texture = new Texture(new String[] {imagePath,"container_specular.png"}, new String[] {"diffuse","specular"}, gl);
+		texture = new Texture(new String[] {imagePath,imagePath}, new String[] {"material.diffuse","material.specular"}, gl);
 		//format on
-		container = new Model(modelPath, gl, null, shader);
+		container = new Model(modelPath, gl, texture, shader);
 		container.loadModel();
 		light = new Model("test.obj", gl, null, lightShader);
 		light.loadModel();
-		shader.use(gl);
 		shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		pushMatrix(new Matrix4f().translation(0, 0, -1), view.getLookAt(), projectionMatrix, shader);
-		lightShader.use(gl);
-		pushMatrix(new Matrix4f().translation(0, 1, 0.5f).scale(1f / 4), view.getLookAt(), projectionMatrix, lightShader);
+		shader.setFloat("material.shininess", 32.0f);
+		shader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
+		shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
+		shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		lightShader.setVec3("uni_color", 1, 1, 1);
+		light.setModelMatrix(new Matrix4f().translate(0, 0, 4));
+		container.setModelMatrix(new Matrix4f().rotate(0, 0, 1, 0).translate(0, 0, -1));
 	}
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
-		double b = Duration.between(launch, Instant.now()).toMillis() * 0.05;
-		float a = (float) Math.cos(b);
-		float c = (float) Math.sin(b);
-
-		shader.use(gl);
-		shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-		shader.setFloat("material.shininess", 32.0f);
-		shader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
-		shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
-		shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		// double b = Duration.between(launch, Instant.now()).toMillis() * 0.0005;
+		// float a = (float) Math.cos(b);
+		// float c = (float) Math.sin(b);
 		shader.setVec3("viewPos", view.getPosition());
-		shader.setVec3("light.position", 0, 0, 4);
-		pushMatrix(new Matrix4f().rotation((float) Math.toRadians(b), 0, 1, 0), view.getLookAt(), projectionMatrix, shader);
-		texture.bindTexture(gl, shader);
+		Vector4f pos = new Vector4f().mul(light.getModelMatrix());
+		shader.setVec3("light.position", pos.x, pos.y, pos.z);
+		pushMatrix(view.getLookAt(), projectionMatrix, container.getShader());
 		container.drawModel();
-		lightShader.use(gl);
-		lightShader.setVec3("uni_color", new Vector3f(1, 1, 1));
-		pushMatrix(new Matrix4f().translation(0, 0, 4).scale(1f / 4), view.getLookAt(), projectionMatrix, lightShader);
+		pushMatrix(view.getLookAt(), projectionMatrix, light.getShader());
 		light.drawModel();
 		gl.glFlush();
 
