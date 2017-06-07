@@ -14,6 +14,7 @@ public class ShaderProgram {
 	private String vertexPath, fragmentPath;
 	private GL4 gl;
 	private FloatBuffer matrixUniformBuffer;
+	private static final String DEFAULT_FOLDER_PATH = "/shaders/";
 
 	public ShaderProgram(String vertexPath, String fragmentPath, GL4 gl) {
 		matrixUniformBuffer = GLBuffers.newDirectFloatBuffer(16);
@@ -64,7 +65,7 @@ public class ShaderProgram {
 	}
 
 	protected String loadStringFileFromCurrentPackage(String fileName) {
-		InputStream stream = this.getClass().getResourceAsStream(fileName);
+		InputStream stream = ShaderProgram.class.getResourceAsStream(DEFAULT_FOLDER_PATH + fileName);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 		// allocate a string builder to add line per line

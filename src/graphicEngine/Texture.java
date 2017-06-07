@@ -24,6 +24,7 @@ public class Texture {
 	private ByteBuffer[] imgBuffers;
 	private int nbTexture;
 	private static int nbTextureUnit = 0;
+	private static final String DEFAULT_FOLDER_PATH = "textures/";
 	//format off
 	private static final String[] str =
 		{
@@ -106,8 +107,15 @@ public class Texture {
 	}
 
 	private DataBuffer getDataBufferFromImg(String imgPath) {
-		InputStream stream = this.getClass().getResourceAsStream(imgPath);
+		FileInputStream stream = null;
 		DataBuffer buffer = null;
+		try {
+			stream = new FileInputStream(new File(DEFAULT_FOLDER_PATH + imgPath));
+
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		try {
 			img[nbTexture] = ImageIO.read(stream);
@@ -118,7 +126,6 @@ public class Texture {
 		return buffer;
 	}
 
-	//
 	private ByteBuffer getByteBufferFromData(boolean alpha, DataBuffer buffer) {
 		ByteBuffer data;
 		int x = 0, y = 0, rgb;

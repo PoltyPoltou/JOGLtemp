@@ -88,7 +88,7 @@ public class Game extends JFrame implements GLEventListener {
 	//format on
 	private IntBuffer VAO, VBO, EBO;
 	private GL4 gl;
-	private String vertexPath = "container.vertex", fragmentPath = "container.fragment", imagePath = "container.png", modelPath = "untitled.obj";
+	private String vertexPath = "container.vertex", fragmentPath = "container.fragment", imagePath = "container.png", modelPath = "cubetext.obj";
 	private GLCanvas canvas;
 	private final FPSAnimator anim;
 	private ShaderProgram shader, lightShader;
@@ -97,7 +97,7 @@ public class Game extends JFrame implements GLEventListener {
 	private Instant launch;
 	private Matrix4f modelMatrix, projectionMatrix;
 	private Camera view;
-	private Model container, light;
+	private NonLightObjects container, light;
 	int i = 0;
 
 	public Game() {
@@ -190,14 +190,15 @@ public class Game extends JFrame implements GLEventListener {
 		System.out.println(gl.glGetString(GL.GL_VERSION));
 		gl.glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		gl.glEnable(GL4.GL_DEPTH_TEST);
+		gl.glEnable(GL4.GL_CULL_FACE);
 		shader = new ShaderProgram(vertexPath, fragmentPath, gl);
 		lightShader = new ShaderProgram(vertexPath, "light.fragment", gl);
 		//format off
-		texture = new Texture(new String[] {imagePath,imagePath}, new String[] {"material.diffuse","material.specular"}, gl);
+		texture = new Texture(new String[] {imagePath,"container_specular.png"}, new String[] {"material.diffuse","material.specular"}, gl);
 		//format on
-		container = new Model(modelPath, gl, texture, shader);
+		container = new NonLightObjects(modelPath, gl, texture, shader);
 		container.loadModel();
-		light = new Model("test.obj", gl, null, lightShader);
+		light = new NonLightObjects("test.obj", gl, null, lightShader);
 		light.loadModel();
 		shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
@@ -206,8 +207,8 @@ public class Game extends JFrame implements GLEventListener {
 		shader.setVec3("pointLights[0].diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
 		shader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
 		shader.setFloat("pointLights[0].constant", 1);
-		shader.setFloat("pointLights[0].linear", 0.14f);
-		shader.setFloat("pointLights[0].quadratic", 0.07f);
+		shader.setFloat("pointLights[0].linear", 0);
+		shader.setFloat("pointLights[0].quadratic", 0);
 		lightShader.setVec3("uni_color", 1, 1, 1);
 		light.setModelMatrix(new Matrix4f().translate(0, 0, 4));
 		container.setModelMatrix(new Matrix4f().rotate((float) Math.PI, 0, 1, 0));
