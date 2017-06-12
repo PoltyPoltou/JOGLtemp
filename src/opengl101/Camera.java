@@ -50,14 +50,17 @@ public class Camera implements Runnable {
 	}
 
 	private void rotate() {
-		Vector3f v = new Vector3f(frontDirection);
-		Quaterniond q = new Quaterniond();
 		Matrix3d m = new Matrix3d();
+		AxisAngle4d a = new AxisAngle4d();
+		AxisAngle4d b = new AxisAngle4d();
+
 		if (Rx != 0 || Ry != 0 || Rz != 0) {
-			q.rotateX(Rx);
-			q.rotateY(Ry);
-			q.get(m);
-			frontDirection = v.mul(m);
+			a.set(Rx, rightV);
+			b.set(Ry, upDirection);
+			a.get(m);
+			frontDirection.mul(m);
+			b.get(m);
+			frontDirection.mul(m);
 			updateDirections();
 		}
 	}

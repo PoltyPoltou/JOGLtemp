@@ -25,7 +25,7 @@ public class ShaderProgram {
 	}
 
 	private void loadVertexAndFragment() {
-		String str = loadStringFileFromCurrentPackage(vertexPath);;
+		String str = loadStringFileFromCurrentPackage(vertexPath);
 		IntBuffer errorBfr = GLBuffers.newDirectIntBuffer(1);
 		vertexId = gl.glCreateShader(GL4.GL_VERTEX_SHADER);
 		gl.glShaderSource(vertexId, 1, new String[]
@@ -35,7 +35,7 @@ public class ShaderProgram {
 		gl.glCompileShader(vertexId);
 		gl.glGetShaderiv(vertexId, GL4.GL_COMPILE_STATUS, errorBfr);
 		if (errorBfr.get(0) == 0) {
-			System.out.println("ERROR:SHADER:VERTEX:COMPILATION:FAILED");
+			System.out.println("ERROR:SHADER:VERTEX:COMPILATION:FAILED " + vertexPath);
 		}
 
 		str = loadStringFileFromCurrentPackage(fragmentPath);
@@ -47,7 +47,7 @@ public class ShaderProgram {
 		gl.glCompileShader(fragmentId);
 		gl.glGetShaderiv(fragmentId, GL4.GL_COMPILE_STATUS, errorBfr);
 		if (errorBfr.get(0) == 0) {
-			System.out.println("ERROR:SHADER:FRAGMENT:COMPILATION:FAILED");
+			System.out.println("ERROR:SHADER:FRAGMENT:COMPILATION:FAILED " + fragmentPath);
 		}
 
 		pgrmId = gl.glCreateProgram();
@@ -60,7 +60,7 @@ public class ShaderProgram {
 		}
 	}
 
-	public void use(GL4 gl) {
+	public void bind() {
 		gl.glUseProgram(pgrmId);
 	}
 
@@ -101,28 +101,28 @@ public class ShaderProgram {
 	}
 
 	public void setVec3(String name, float a, float b, float c) {
-		this.use(gl);
+		this.bind();
 		gl.glUniform3f(gl.glGetUniformLocation(pgrmId, name), a, b, c);
 	}
 
 	public void setVec3(String name, Vector3f v) {
-		this.use(gl);
+		this.bind();
 		gl.glUniform3f(gl.glGetUniformLocation(pgrmId, name), v.x, v.y, v.z);
 	}
 
 	public void setFloat(String name, float f) {
-		this.use(gl);
+		this.bind();
 		gl.glUniform1f(gl.glGetUniformLocation(pgrmId, name), f);
 	}
 
 	public void setMat4(String name, Matrix4f m) {
-		this.use(gl);
+		this.bind();
 		m.get(matrixUniformBuffer);
 		gl.glUniformMatrix4fv(gl.glGetUniformLocation(pgrmId, name), 1, false, matrixUniformBuffer);
 	}
 
 	public void setMat3(String name, Matrix3f m) {
-		this.use(gl);
+		this.bind();
 		m.get(matrixUniformBuffer);
 		gl.glUniformMatrix3fv(gl.glGetUniformLocation(pgrmId, name), 1, false, matrixUniformBuffer);
 	}

@@ -36,7 +36,7 @@ public class Texture {
 	//format on
 	private String[] textureUnitNames;
 
-	public Texture(String[] imgPath, String[] names, GL4 gl) {
+	public Texture(GL4 gl, String[] imgPath, String[] names) {
 		nbTexture = 0;
 		textureUnitNames = names;
 		img = new BufferedImage[imgPath.length];
@@ -70,7 +70,7 @@ public class Texture {
 		}
 	}
 
-	public Texture(String imgPath, String name, GL4 gl) {
+	public Texture(GL4 gl, String imgPath, String name) {
 		nbTexture = 0;
 		textureUnitNames = new String[]
 			{
@@ -106,6 +106,10 @@ public class Texture {
 
 	}
 
+	public Texture() {
+
+	}
+
 	private DataBuffer getDataBufferFromImg(String imgPath) {
 		FileInputStream stream = null;
 		DataBuffer buffer = null;
@@ -113,7 +117,6 @@ public class Texture {
 			stream = new FileInputStream(new File(DEFAULT_FOLDER_PATH + imgPath));
 
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 

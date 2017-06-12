@@ -5,6 +5,7 @@ layout (location = 0) in vec3 in_position;
 layout (location = 1) in vec2 in_texture;
 layout (location = 2) in vec3 in_normal;
 
+out vec4 fragmentPosLightSpace;
 out vec3 norm;
 out vec3 fragmentPos;
 out vec2 textCoords;
@@ -13,11 +14,13 @@ uniform mat4 uni_model;
 uniform mat4 uni_view;
 uniform mat4 uni_proj;
 uniform mat3 uni_normalMatrix;
+uniform mat4 uni_lightSpaceMatrix;
 
 void main()
 {
 	norm = normalize(uni_normalMatrix*in_normal);
 	fragmentPos = vec3(uni_model * vec4(in_position, 1.0));
 	textCoords = in_texture; 
+	fragmentPosLightSpace = uni_lightSpaceMatrix*vec4(fragmentPos,1);
     gl_Position = uni_proj*uni_view*uni_model*vec4(in_position,1.0);
  }
