@@ -7,18 +7,21 @@ import com.jogamp.opengl.util.*;
 
 import opengl101.*;
 
-public class FrameBuffer {
+public class ShadowDepthFrameBuffer<TextureType extends Depth> {
 	private IntBuffer FBO;
-	private DepthBufferTexture color, depth, stencil;
-	private ShaderProgram shadowShader;
+	private TextureType depthTexture;
+	private ShaderProgram shader;
 	private GL4 gl;
 
-	public FrameBuffer(GL4 gl, DepthBufferTexture t) {
-		shadowShader = new ShaderProgram("shadow.vertex", "shadow.fragment", gl);
+	public ShadowDepthFrameBuffer(GL4 gl, TextureType t) {
+		if (t.getFaces() == 1)
+			shader = new ShaderProgram(gl, "shadowDirLight.vertex", "shadowDirLight.fragment");// dirLight
+		if (t.getFaces() == 6)
+			shader = new ShaderProgram(gl, "shadowPointLight.vertex", "shadowPointLight.fragment", "shadowPointLight.geometry");// PointLight
 		this.gl = gl;
 		genBuffers();
-		depth = t;
-		attachDepthTexture(depth);
+		depthTexture = t;
+		attachDepthTexture(depthTexture);
 		bind();
 		gl.glEnable(GL4.GL_DEPTH_TEST);
 	}
@@ -39,22 +42,22 @@ public class FrameBuffer {
 	}
 
 	public void bindDepthTexture(ShaderProgram s, String name) {// bind to a different shader to make shadows
-		depth.bind(s, name);
+		depthTexture.bind(s, name);
 	}
 
 	public void bindDepthTexture(ShaderProgram s) {// bind to a different shader to make shadows
-		depth.bind(s);
+		depthTexture.bind(s);
 	}
 
 	public void bindDepthTexture() {// bind to the depth texture
-		depth.bind(shadowShader);
+		depthTexture.bind(shader);
 	}
 
 	public void clearBuffer() {
 		gl.glClear(GL4.GL_DEPTH_BUFFER_BIT);
 	}
 
-	private void attachDepthTexture(DepthBufferTexture t) {
+	private void attachDepthTexture(TextureType t) {
 		bind();
 		t.bind();
 		gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_ATTACHMENT, GL4.GL_TEXTURE_2D, t.getId(), 0);
@@ -64,6 +67,6 @@ public class FrameBuffer {
 	}
 
 	public ShaderProgram getShader() {
-		return shadowShader;
+		return shader;
 	}
 }

@@ -3,194 +3,159 @@
   associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
   <class id="1" language="java" name="graphicEngine.Light" project="openglmdr" 
     file="/openglmdr/src/graphicEngine/Light.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1550" y="1130"/>    
+    <position height="189" width="238" x="568" y="662"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="graphicEngine.DepthBufferTexture" project="openglmdr" 
-    file="/openglmdr/src/graphicEngine/DepthBufferTexture.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="333" width="214" x="326" y="1040"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="3" language="java" name="graphicEngine.Model" project="openglmdr" 
+  <class id="2" language="java" name="graphicEngine.Model" project="openglmdr" 
     file="/openglmdr/src/graphicEngine/Model.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="585" width="238" x="1085" y="37"/>    
+    <position height="585" width="238" x="771" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="graphicEngine.Texture" project="openglmdr" 
+  <class id="3" language="java" name="graphicEngine.Texture" project="openglmdr" 
     file="/openglmdr/src/graphicEngine/Texture.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1138" y="1309"/>    
+    <position height="545" width="517" x="846" y="662"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="graphicEngine.PointLight" project="openglmdr" 
+  <class id="4" language="java" name="graphicEngine.PointLight" project="openglmdr" 
     file="/openglmdr/src/graphicEngine/PointLight.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1723" y="1688"/>    
+    <position height="153" width="294" x="507" y="1247"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="graphicEngine.NonLightObjects" project="openglmdr" 
+  <class id="5" language="java" name="graphicEngine.NonLightObjects" project="openglmdr" 
     file="/openglmdr/src/graphicEngine/NonLightObjects.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="171" width="281" x="1719" y="1040"/>    
+    <position height="171" width="281" x="1403" y="662"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="graphicEngine.FrameBuffer" project="openglmdr" 
-    file="/openglmdr/src/graphicEngine/FrameBuffer.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="279" width="247" x="326" y="37"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="8" language="java" name="graphicEngine.DirLight" project="openglmdr" 
+  <class id="6" language="java" name="graphicEngine.DirLight" project="openglmdr" 
     file="/openglmdr/src/graphicEngine/DirLight.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1408" y="1688"/>    
+    <position height="135" width="270" x="841" y="1247"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="9" language="java" name="opengl101.ShaderProgram" project="openglmdr" 
+  <class id="7" language="java" name="opengl101.ShaderProgram" project="openglmdr" 
     file="/openglmdr/src/opengl101/ShaderProgram.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="423" width="258" x="580" y="1040"/>    
+    <position height="423" width="258" x="270" y="662"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="10" language="java" name="opengl101.Camera" project="openglmdr" file="/openglmdr/src/opengl101/Camera.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
-    <position height="963" width="245" x="41" y="37"/>    
+  <class id="8" language="java" name="graphicEngine.Depth" project="openglmdr" 
+    file="/openglmdr/src/graphicEngine/Depth.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="351" width="188" x="42" y="662"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="11" language="java" name="opengl101.Main" project="openglmdr" file="/openglmdr/src/opengl101/Main.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
-    <position height="99" width="113" x="773" y="37"/>    
+  <class id="9" language="java" name="graphicEngine.DepthTexture" project="openglmdr" 
+    file="/openglmdr/src/graphicEngine/DepthTexture.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="183" x="42" y="1247"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <association id="12">    
-    <end type="SOURCE" refId="7" navigable="false">      
-      <attribute id="13" name="shadowShader">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="14" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="15">    
+  <class id="10" language="java" name="graphicEngine.DepthCubeTexture" project="openglmdr" 
+    file="/openglmdr/src/graphicEngine/DepthCubeTexture.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="202" x="265" y="1247"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="graphicEngine.ShadowDepthFrameBuffer" project="openglmdr" 
+    file="/openglmdr/src/graphicEngine/ShadowDepthFrameBuffer.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="279" width="247" x="156" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <generalization id="12">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="1"/>  
+  </generalization>  
+  <generalization id="13">    
     <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="3"/>  
+    <end type="TARGET" refId="1"/>  
+  </generalization>  
+  <generalization id="14">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="15">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
   </generalization>  
   <association id="16">    
-    <bendpoint x="511" y="679"/>    
-    <bendpoint x="514" y="1009"/>    
-    <end type="SOURCE" refId="7" navigable="false">      
-      <attribute id="17" name="depth">        
-        <position height="0" width="0" x="0" y="0"/>      
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="17" name="texture">        
+        <position height="0" width="0" x="-282" y="-3"/>      
       </attribute>      
       <multiplicity id="18" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-282" y="-3"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="19">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="20" name="shader">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="21" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="2" navigable="true"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="19">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="3"/>  
+  <association id="22">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="23" name="shader"/>      
+      <multiplicity id="24" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="25">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="8"/>  
   </generalization>  
-  <association id="20">    
-    <end type="SOURCE" refId="7" navigable="false">      
-      <attribute id="21" name="color">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="22" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="2" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="23">    
-    <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="24" name="texture">        
-        <position height="0" width="0" x="-282" y="-3"/>      
-      </attribute>      
-      <multiplicity id="25" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-282" y="-3"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="4" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
   <generalization id="26">    
     <end type="SOURCE" refId="5"/>    
-    <end type="TARGET" refId="1"/>  
+    <end type="TARGET" refId="2"/>  
   </generalization>  
-  <generalization id="27">    
-    <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="1"/>  
-  </generalization>  
-  <association id="28">    
-    <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="29" name="shader">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="30" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="31">    
-    <bendpoint x="313" y="1000"/>    
-    <end type="SOURCE" refId="7" navigable="false">      
-      <attribute id="32" name="stencil">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="33" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="2" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    

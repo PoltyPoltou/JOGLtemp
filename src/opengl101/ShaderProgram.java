@@ -10,23 +10,46 @@ import com.jogamp.opengl.util.*;
 
 public class ShaderProgram {
 
-	private int vertexId, fragmentId, pgrmId;
-	private String vertexPath, fragmentPath;
+	private int vertexId, fragmentId, geometryId, pgrmId;
 	private GL4 gl;
 	private FloatBuffer matrixUniformBuffer;
+	private IntBuffer errorBfr;
 	private static final String DEFAULT_FOLDER_PATH = "/shaders/";
 
-	public ShaderProgram(String vertexPath, String fragmentPath, GL4 gl) {
+	public ShaderProgram(GL4 gl, String vertexPath, String fragmentPath) {
+		errorBfr = GLBuffers.newDirectIntBuffer(1);
 		matrixUniformBuffer = GLBuffers.newDirectFloatBuffer(16);
+		geometryId = -1;
 		this.gl = gl;
-		this.vertexPath = vertexPath;
-		this.fragmentPath = fragmentPath;
-		loadVertexAndFragment();
+		loadVertexAndFragment(vertexPath, fragmentPath);
+		compileShader();
 	}
 
-	private void loadVertexAndFragment() {
+	public ShaderProgram(GL4 gl, String vertexPath, String fragmentPath, String geometryPath) {
+		errorBfr = GLBuffers.newDirectIntBuffer(1);
+		matrixUniformBuffer = GLBuffers.newDirectFloatBuffer(16);
+		this.gl = gl;
+		loadVertexAndFragment(vertexPath, fragmentPath);
+		loadGeometryShader(geometryPath);
+		compileShader();
+	}
+
+	private void loadGeometryShader(String geometryPath) {
+		String str = loadStringFileFromCurrentPackage(geometryPath);
+		geometryId = gl.glCreateShader(GL4.GL_GEOMETRY_SHADER);
+		gl.glShaderSource(geometryId, 1, new String[]
+			{
+					str
+			}, null);
+		gl.glCompileShader(geometryId);
+		gl.glGetShaderiv(geometryId, GL4.GL_COMPILE_STATUS, errorBfr);
+		if (errorBfr.get(0) == 0) {
+			System.out.println("ERROR:SHADER:GEOMETRY:COMPILATION:FAILED " + geometryPath);
+		}
+	}
+
+	private void loadVertexAndFragment(String vertexPath, String fragmentPath) {
 		String str = loadStringFileFromCurrentPackage(vertexPath);
-		IntBuffer errorBfr = GLBuffers.newDirectIntBuffer(1);
 		vertexId = gl.glCreateShader(GL4.GL_VERTEX_SHADER);
 		gl.glShaderSource(vertexId, 1, new String[]
 			{
@@ -49,13 +72,18 @@ public class ShaderProgram {
 		if (errorBfr.get(0) == 0) {
 			System.out.println("ERROR:SHADER:FRAGMENT:COMPILATION:FAILED " + fragmentPath);
 		}
+	}
 
+	public void compileShader() {
 		pgrmId = gl.glCreateProgram();
 		gl.glAttachShader(pgrmId, vertexId);
+		if (geometryId != -1) {
+			// gl.glAttachShader(pgrmId, geometryId);
+		}
 		gl.glAttachShader(pgrmId, fragmentId);
 		gl.glLinkProgram(pgrmId);
 		gl.glGetProgramiv(pgrmId, GL4.GL_LINK_STATUS, errorBfr);
-		if (errorBfr.get(0) == 0) {
+		if (errorBfr.get(0) != GL4.GL_TRUE) {
 			System.out.println("ERROR:SHADER:PROGRAM:LINKING:FAILED");
 		}
 	}
