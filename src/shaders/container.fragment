@@ -34,7 +34,7 @@ struct PointLight {
     vec3 intensity;
 	
 	//shadow depth buffer test
-	//sampler2D shadowMap;
+	samplerCube shadowMap;
 };
 #define MAX_LIGHTS 100
 uniform PointLight pointLights[100];
@@ -50,10 +50,11 @@ in vec3 fragmentPos;
 in vec2 textCoords;
 
 uniform vec3 viewPos;
-
+uniform float uni_farPlane;
 
 //prototype for shadow calculation
 float dirLightShadowCalculation(vec4 fragPosFromLight, vec3 lightDir , vec3 normal);
+float pointLightShadowCalculation(PointLight l,vec3 fragmentPos);
 void main()
 {
     // properties
@@ -65,9 +66,10 @@ void main()
 		result += CalcPointLight(pointLights[i], norm, fragmentPos, viewDir);
 	}
     out_Color = vec4(result, 1.0);
+	//out_Color = vec4(vec3(CalcPointLight(pointLights[0], norm, fragmentPos, viewDir)),1.0);
 	
 	float gamma = 2.2;
-    out_Color.rgb = pow(out_Color.rgb, vec3(1.0/gamma));
+    out_Color.rgb = pow(out_Color.rgb, vec3(1.0 / gamma));
 }
 
 
@@ -94,6 +96,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 		float shadow = dirLightShadowCalculation(fragmentPosLightSpace,lightDir,normal);//0 = light, 1 = shadow
 		float shadowFactor = 1 - shadow;
 		return (ambient + shadowFactor*(diffuse + specular))*light.color;
+		//return vec3(shadow);
 	
 }
 
@@ -115,14 +118,18 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
-    return (ambient + diffuse + specular)*light.color;
+	//shadow
+	float shadow = pointLightShadowCalculation(light,fragmentPos);//0 = light, 1 = shadow
+	float shadowFactor = 1 - shadow;
+    return (ambient + shadowFactor*(diffuse + specular))*light.color;
 } 
 
 
 //shadow calculation for directional light
 float dirLightShadowCalculation(vec4 fragPosFromLight, vec3 lightDir , vec3 normal){
 	float shadow;
-	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
+	//float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
+	float bias = 0.001; 
     vec3 projCoords = fragPosFromLight.xyz / fragPosFromLight.w; //make things orthogonal (range -1;1)
 	projCoords = 0.5*(projCoords+1); // put back to range 0;1
 	float closestDepth = texture(dirLight.shadowMap, projCoords.xy).r;   
@@ -134,3 +141,24 @@ float dirLightShadowCalculation(vec4 fragPosFromLight, vec3 lightDir , vec3 norm
 	shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 	return shadow;
 }
+
+float pointLightShadowCalculation(PointLight l, vec3 fragmentPos){
+	float shadow;
+	float bias = 0.001; 
+	vec3 fragmentToLight = fragmentPos - l.position;
+	float currentDepth = length(fragmentToLight);
+	float closestDepth = texture(l.shadowMap,fragmentToLight).r;
+	closestDepth *= uni_farPlane;
+	shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+	return shadow;
+}
+
+
+
+
+
+
+
+
+
+

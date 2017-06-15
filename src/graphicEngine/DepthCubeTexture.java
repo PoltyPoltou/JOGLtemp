@@ -17,28 +17,37 @@ public class DepthCubeTexture extends Depth {
 		gl.glTexParameteri(GL4.GL_TEXTURE_CUBE_MAP, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
 		gl.glTexParameteri(GL4.GL_TEXTURE_CUBE_MAP, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
 		gl.glTexParameteri(GL4.GL_TEXTURE_CUBE_MAP, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
+		gl.glTexParameteri(GL4.GL_TEXTURE_CUBE_MAP, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
 		gl.glBindTexture(GL4.GL_TEXTURE_CUBE_MAP, 0);
 	}
 
 	@Override
 	public void bind() {
-		gl.glActiveTexture(GL4.GL_TEXTURE31);
+		gl.glActiveTexture(GL4.GL_TEXTURE15);
 		gl.glBindTexture(GL4.GL_TEXTURE_CUBE_MAP, getId());
 	}
 
 	@Override
 	public void bind(ShaderProgram s) {
 		s.bind();
-		gl.glActiveTexture(GL4.GL_TEXTURE31);
+		gl.glActiveTexture(GL4.GL_TEXTURE15);
 		gl.glBindTexture(GL4.GL_TEXTURE_CUBE_MAP, getId());
-		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), unitName), 31);
+		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), unitName), 15);
 	}
 
 	@Override
 	public void bind(ShaderProgram s, String name) {
 		s.bind();
-		gl.glActiveTexture(GL4.GL_TEXTURE31);
+		gl.glActiveTexture(GL4.GL_TEXTURE0);
 		gl.glBindTexture(GL4.GL_TEXTURE_CUBE_MAP, getId());
-		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), name), 31);
+		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), name), 0);
+	}
+
+	@Override
+	public void bind(ShaderProgram s, String name, int textureUnit) {
+		s.bind();
+		gl.glActiveTexture(GL4.GL_TEXTURE0 + textureUnit);
+		gl.glBindTexture(GL4.GL_TEXTURE_CUBE_MAP, getId());
+		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), name), textureUnit);
 	}
 }

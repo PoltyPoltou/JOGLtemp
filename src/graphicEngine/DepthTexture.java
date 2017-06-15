@@ -20,24 +20,31 @@ public class DepthTexture extends Depth {
 
 	@Override
 	public void bind() {
-		gl.glActiveTexture(GL4.GL_TEXTURE31);
+		gl.glActiveTexture(GL4.GL_TEXTURE10);
 		gl.glBindTexture(GL4.GL_TEXTURE_2D, getId());
 	}
 
 	@Override
 	public void bind(ShaderProgram s) {
 		s.bind();
-		gl.glActiveTexture(GL4.GL_TEXTURE31);
+		gl.glActiveTexture(GL4.GL_TEXTURE10);
 		gl.glBindTexture(GL4.GL_TEXTURE_2D, getId());
-		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), unitName), 31);
+		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), unitName), 10);
 	}
 
 	@Override
 	public void bind(ShaderProgram s, String name) {
 		s.bind();
-		gl.glActiveTexture(GL4.GL_TEXTURE31);
+		gl.glActiveTexture(GL4.GL_TEXTURE0);
 		gl.glBindTexture(GL4.GL_TEXTURE_2D, getId());
-		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), name), 31);
+		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), name), 0);
 	}
 
+	@Override
+	public void bind(ShaderProgram s, String name, int textureUnit) {
+		s.bind();
+		gl.glActiveTexture(GL4.GL_TEXTURE0 + textureUnit);
+		gl.glBindTexture(GL4.GL_TEXTURE_2D, getId());
+		gl.glUniform1i(gl.glGetUniformLocation(s.getPgrmId(), name), textureUnit);
+	}
 }

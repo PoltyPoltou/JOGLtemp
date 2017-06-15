@@ -2,9 +2,12 @@ package graphicEngine;
 
 import java.nio.*;
 
+import org.joml.*;
+
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.*;
 
+import graphicEngine.lights.*;
 import opengl101.*;
 
 public class ShadowDepthFrameBuffer<TextureType extends Depth> {
@@ -22,8 +25,6 @@ public class ShadowDepthFrameBuffer<TextureType extends Depth> {
 		genBuffers();
 		depthTexture = t;
 		attachDepthTexture(depthTexture);
-		bind();
-		gl.glEnable(GL4.GL_DEPTH_TEST);
 	}
 
 	private void genBuffers() {
@@ -33,12 +34,14 @@ public class ShadowDepthFrameBuffer<TextureType extends Depth> {
 
 	public void bind() {
 		gl.glBindFramebuffer(GL4.GL_FRAMEBUFFER, FBO.get(0));
-		gl.glCullFace(GL4.GL_FRONT);
 	}
 
 	public void unBind() {
 		gl.glBindFramebuffer(GL4.GL_FRAMEBUFFER, 0);
-		gl.glCullFace(GL4.GL_BACK);
+	}
+
+	public void bindDepthTexture(ShaderProgram s, String name, int index) {// bind to a different shader with different texture unit
+		depthTexture.bind(s, name, index);
 	}
 
 	public void bindDepthTexture(ShaderProgram s, String name) {// bind to a different shader to make shadows
@@ -60,10 +63,25 @@ public class ShadowDepthFrameBuffer<TextureType extends Depth> {
 	private void attachDepthTexture(TextureType t) {
 		bind();
 		t.bind();
-		gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_ATTACHMENT, GL4.GL_TEXTURE_2D, t.getId(), 0);
+		if (t.getFaces() == 1)
+			gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_ATTACHMENT, GL4.GL_TEXTURE_2D, t.getId(), 0);
+		if (t.getFaces() == 6)
+			gl.glFramebufferTexture(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_ATTACHMENT, t.getId(), 0);
 		gl.glDrawBuffer(GL4.GL_NONE);
 		gl.glReadBuffer(GL4.GL_NONE);
 		unBind();
+	}
+
+	public void setLightSpaceMatrix(PointLightShadow l) {
+		Matrix4f[] lightSpaceMatrix = l.getLightSpaceTransform((DepthCubeTexture) depthTexture, 1, 25);
+		for (int i = 0; i < 6; i++) {
+			this.getShader().setMat4("uni_shadowMatrices[" + i + "]", lightSpaceMatrix[i]);
+		}
+	}
+
+	public void setLightSpaceMatrix(DirLightShadow l) {
+		Matrix4f lightSpaceMatrix = l.getLightSpaceTransform(1, 25);
+		this.getShader().setMat4("uni_lightSpaceMatrix", lightSpaceMatrix);
 	}
 
 	public ShaderProgram getShader() {

@@ -16,6 +16,7 @@ import com.jogamp.opengl.awt.*;
 import com.jogamp.opengl.util.*;
 
 import graphicEngine.*;
+import graphicEngine.lights.*;
 import inputs.*;
 
 public class Game extends JFrame implements GLEventListener {
@@ -49,8 +50,12 @@ public class Game extends JFrame implements GLEventListener {
 	private NonLightObjects floor, light, block;
 	private ShadowDepthFrameBuffer<DepthTexture> shadowBuffer;
 	private DepthTexture shadowTexture;
-	private DirLight sun;
-	private PointLight lamp;
+	private ShadowDepthFrameBuffer<DepthCubeTexture> lampFrameBuffer;
+	private DepthCubeTexture shadowLampTexture;
+	private DirLightShadow sun;
+	private PointLightShadow lamp;
+	private LightProperties commonLight = new LightProperties(LightProperties.WHITE_COLOR, LightProperties.NO_ATTENUATION, new Vector3f(0.1f, 0.4f, 1));
+	private LightProperties noLight = new LightProperties(LightProperties.WHITE_COLOR, LightProperties.NO_ATTENUATION, new Vector3f(0));
 
 	public Game() {
 
@@ -113,21 +118,22 @@ public class Game extends JFrame implements GLEventListener {
 		floor = new NonLightObjects(gl, modelPath, texture, standardShader);
 		floor.loadModel();
 		light = new NonLightObjects(gl, "light.obj", null, lightShader);
-		light.setModel(new Matrix4f().translate(0, 3, 0).scale(0.1f));
+		light.setModel(new Matrix4f().translate(0, 3, -3).scale(0.1f));
 		light.loadModel();
 		block = new NonLightObjects(gl, "cubetexturecase.obj", texture, standardShader);
-		block.setModel(new Matrix4f().translate(0, 0.5f, 0).scale(0.2f));
+		block.setModel(new Matrix4f().translate(2, 0.3f, 0).scale(0.2f));
 		block.loadModel();
 		textureDisplayerShader = new ShaderProgram(gl, "texture.vertex", "texture.fragment");
 		standardShader.setFloat("material.shininess", 32);
-		sun = new DirLight(gl, new Vector3f(-5, -4, -5), new Vector3f(1), new Vector3f(0.1f, 0.4f, 1));
+		sun = new DirLightShadow(gl, new Vector3f(-5, -4, -5), commonLight);
 		sun.loadParameters(standardShader);
-		lamp = new PointLight(gl, new Vector3f(0, 3, 0), new Vector3f(1), new Vector3f(1, 0, 0), new Vector3f(0.1f, 0.4f, 1f));
+		lamp = new PointLightShadow(gl, new Vector3f(0, 3, -3), commonLight);
 		lamp.loadParameters(standardShader);
 		lightShader.setVec3("uni_color", 1, 1, 1);
 		shadowTexture = new DepthTexture(gl, 1024, 1024, "dirLight.shadowMap");
 		shadowBuffer = new ShadowDepthFrameBuffer<>(gl, shadowTexture);
-
+		shadowLampTexture = new DepthCubeTexture(gl, 1024, 1024, "pointLights[0].shadowMap");
+		lampFrameBuffer = new ShadowDepthFrameBuffer<>(gl, shadowLampTexture);
 		FloatBuffer buf = GLBuffers.newDirectFloatBuffer(quadVertices);
 		quadVBO = GLBuffers.newDirectIntBuffer(1);
 		quadVAO = GLBuffers.newDirectIntBuffer(1);
@@ -148,13 +154,11 @@ public class Game extends JFrame implements GLEventListener {
 		double a = Duration.between(launch, Instant.now()).toMillis() * 0.005;
 		float b = (float) Math.cos(a);
 		float c = (float) Math.sin(a);
-		Matrix4f lightProj = new Matrix4f().ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 25f);
-		Matrix4f lightView = new Matrix4f().lookAt(5, 4, 5, 0, 0, 0, 0, 1, 0);
-		Matrix4f lightSpaceMatrix = new Matrix4f(lightProj).mul(lightView);
-		shadowBuffer.getShader().setMat4("uni_lightSpaceMatrix", lightSpaceMatrix);
-		standardShader.setMat4("uni_lightSpaceMatrix", lightSpaceMatrix);
-
+		shadowBuffer.setLightSpaceMatrix(sun);
+		standardShader.setMat4("uni_lightSpaceMatrix", sun.getLightSpaceTransform(1, 25));
+		lampFrameBuffer.setLightSpaceMatrix(lamp);
 		gl.glViewport(0, 0, 1024, 1024);
+
 		shadowBuffer.bind();
 		shadowBuffer.bindDepthTexture();
 		shadowBuffer.clearBuffer();
@@ -164,6 +168,19 @@ public class Game extends JFrame implements GLEventListener {
 		light.strippedDraw(shadowBuffer.getShader());
 
 		shadowBuffer.unBind();
+
+		lampFrameBuffer.bind();
+		lampFrameBuffer.bindDepthTexture();
+		lampFrameBuffer.clearBuffer();
+
+		lampFrameBuffer.getShader().setFloat("uni_farPlane", 25);
+		lampFrameBuffer.getShader().setVec3("uni_lightPos", lamp.getPosition());
+
+		floor.strippedDraw(lampFrameBuffer.getShader());
+		block.strippedDraw(lampFrameBuffer.getShader());
+		light.strippedDraw(lampFrameBuffer.getShader());
+
+		lampFrameBuffer.unBind();
 
 		KeyboardInput k = view.getKeyboard();
 		if (k.isPressed('i'))
@@ -189,11 +206,13 @@ public class Game extends JFrame implements GLEventListener {
 		gl.glClearColor(0.2f, 0.3f, 0.1f, 1);
 		gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
 		gl.glViewport(0, 0, canvas.getWidth(), canvas.getHeight());
+		standardShader.setFloat("uni_farPlane", 25);
 		shadowBuffer.bindDepthTexture(standardShader);
+		lampFrameBuffer.bindDepthTexture(standardShader);
 		standardShader.setVec3("viewPos", view.getPosition());
-		pushMatrix(view.getLookAt(), projectionMatrix, floor.getShader());
+		pushMatrix(view.getLookAt(), projectionMatrix, standardShader);
 		floor.drawModel();
-		pushMatrix(view.getLookAt(), projectionMatrix, block.getShader());
+		pushMatrix(view.getLookAt(), projectionMatrix, standardShader);
 		block.drawModel();
 		pushMatrix(view.getLookAt(), projectionMatrix, light.getShader());
 		light.drawModel();

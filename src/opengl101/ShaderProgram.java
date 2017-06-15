@@ -15,8 +15,10 @@ public class ShaderProgram {
 	private FloatBuffer matrixUniformBuffer;
 	private IntBuffer errorBfr;
 	private static final String DEFAULT_FOLDER_PATH = "/shaders/";
+	private String vertexPath;
 
 	public ShaderProgram(GL4 gl, String vertexPath, String fragmentPath) {
+		this.vertexPath = vertexPath;
 		errorBfr = GLBuffers.newDirectIntBuffer(1);
 		matrixUniformBuffer = GLBuffers.newDirectFloatBuffer(16);
 		geometryId = -1;
@@ -26,6 +28,7 @@ public class ShaderProgram {
 	}
 
 	public ShaderProgram(GL4 gl, String vertexPath, String fragmentPath, String geometryPath) {
+		this.vertexPath = vertexPath;
 		errorBfr = GLBuffers.newDirectIntBuffer(1);
 		matrixUniformBuffer = GLBuffers.newDirectFloatBuffer(16);
 		this.gl = gl;
@@ -57,7 +60,7 @@ public class ShaderProgram {
 			}, null);
 		gl.glCompileShader(vertexId);
 		gl.glGetShaderiv(vertexId, GL4.GL_COMPILE_STATUS, errorBfr);
-		if (errorBfr.get(0) == 0) {
+		if (errorBfr.get(0) != GL4.GL_TRUE) {
 			System.out.println("ERROR:SHADER:VERTEX:COMPILATION:FAILED " + vertexPath);
 		}
 
@@ -69,7 +72,7 @@ public class ShaderProgram {
 			}, null);
 		gl.glCompileShader(fragmentId);
 		gl.glGetShaderiv(fragmentId, GL4.GL_COMPILE_STATUS, errorBfr);
-		if (errorBfr.get(0) == 0) {
+		if (errorBfr.get(0) != GL4.GL_TRUE) {
 			System.out.println("ERROR:SHADER:FRAGMENT:COMPILATION:FAILED " + fragmentPath);
 		}
 	}
@@ -78,13 +81,21 @@ public class ShaderProgram {
 		pgrmId = gl.glCreateProgram();
 		gl.glAttachShader(pgrmId, vertexId);
 		if (geometryId != -1) {
-			// gl.glAttachShader(pgrmId, geometryId);
+			gl.glAttachShader(pgrmId, geometryId);
 		}
 		gl.glAttachShader(pgrmId, fragmentId);
 		gl.glLinkProgram(pgrmId);
 		gl.glGetProgramiv(pgrmId, GL4.GL_LINK_STATUS, errorBfr);
 		if (errorBfr.get(0) != GL4.GL_TRUE) {
-			System.out.println("ERROR:SHADER:PROGRAM:LINKING:FAILED");
+			System.out.println("ERROR:SHADER:PROGRAM:LINKING:FAILED " + vertexPath);
+			IntBuffer size = GLBuffers.newDirectIntBuffer(1);
+			gl.glGetProgramiv(pgrmId, GL4.GL_INFO_LOG_LENGTH, size);
+			byte[] a = new byte[size.get(0)];
+			ByteBuffer b = ByteBuffer.wrap(a);
+			gl.glGetProgramInfoLog(pgrmId, size.get(0), size, b);
+			for (int i = 0; i < b.capacity(); i++) {
+				System.out.print((char) b.get());
+			}
 		}
 	}
 

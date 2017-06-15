@@ -31,6 +31,8 @@ public abstract class Depth {
 
 	public abstract void bind(ShaderProgram s, String name);
 
+	public abstract void bind(ShaderProgram s, String name, int textureUnit);
+
 	public int getId() {
 		return id.get(0);
 	}
@@ -50,5 +52,4 @@ public abstract class Depth {
 	public int getFaces() {
 		return faces;
 	}
-
 }

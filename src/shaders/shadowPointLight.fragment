@@ -1,10 +1,9 @@
-
 #version 450 
 
 in vec4 fragmentPos;
 
 uniform vec3 uni_lightPos;
-uniform float uni_far_plane;
+uniform float uni_farPlane;
 
 void main()
 {
@@ -12,7 +11,7 @@ void main()
     float lightDistance = length(fragmentPos.xyz - uni_lightPos);
     
     // map to [0;1] range by dividing by far_plane
-    lightDistance = lightDistance / uni_far_plane;
+    lightDistance = lightDistance / uni_farPlane;
     
     // write this as modified depth
     gl_FragDepth = lightDistance;
