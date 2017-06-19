@@ -24,7 +24,6 @@ public class ShadowDepthFrameBuffer<TextureType extends Depth> {
 		this.gl = gl;
 		genBuffers();
 		depthTexture = t;
-		attachDepthTexture(depthTexture);
 	}
 
 	private void genBuffers() {
@@ -52,31 +51,21 @@ public class ShadowDepthFrameBuffer<TextureType extends Depth> {
 		depthTexture.bind(s);
 	}
 
-	public void bindDepthTexture() {// bind to the depth texture
-		depthTexture.bind(shader);
-	}
-
 	public void clearBuffer() {
 		gl.glClear(GL4.GL_DEPTH_BUFFER_BIT);
 	}
 
-	private void attachDepthTexture(TextureType t) {
+	public void bindFramebufferWithTexture() {
 		bind();
-		t.bind();
-		if (t.getFaces() == 1)
-			gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_ATTACHMENT, GL4.GL_TEXTURE_2D, t.getId(), 0);
-		if (t.getFaces() == 6)
-			gl.glFramebufferTexture(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_ATTACHMENT, t.getId(), 0);
+		depthTexture.bindToFrameBuffer();
 		gl.glDrawBuffer(GL4.GL_NONE);
 		gl.glReadBuffer(GL4.GL_NONE);
-		unBind();
 	}
 
 	public void setLightSpaceMatrix(PointLightShadow l) {
-		Matrix4f[] lightSpaceMatrix = l.getLightSpaceTransform((DepthCubeTexture) depthTexture, 1, 25);
-		for (int i = 0; i < 6; i++) {
-			this.getShader().setMat4("uni_shadowMatrices[" + i + "]", lightSpaceMatrix[i]);
-		}
+		Matrix4f[] lightSpaceMatrix = l.getLightSpaceTransform((DepthCubeTexture) depthTexture, 0.1f, 30);
+		this.getShader().setArrayMat4("uni_shadowMatrices", lightSpaceMatrix);
+
 	}
 
 	public void setLightSpaceMatrix(DirLightShadow l) {

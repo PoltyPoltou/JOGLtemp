@@ -33,6 +33,8 @@ public abstract class Depth {
 
 	public abstract void bind(ShaderProgram s, String name, int textureUnit);
 
+	public abstract void bindToFrameBuffer();
+
 	public int getId() {
 		return id.get(0);
 	}

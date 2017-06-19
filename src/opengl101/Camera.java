@@ -8,7 +8,7 @@ import org.joml.*;
 import inputs.*;
 
 public class Camera implements Runnable {
-	private float speedTranslation = 0.05f, speedRotation = 0.1f;
+	private float speedTranslation = 0.025f, speedRotation = 0.1f;
 	private boolean up, down, left, right, front, back;
 	private Vector3f upV, downV, leftV, rightV, frontV, backV;
 	private double Rx, Ry, Rz;
@@ -106,11 +106,11 @@ public class Camera implements Runnable {
 
 	// called every time target or position is modified
 	private void updateDirections() {
-		upV = new Vector3f(upDirection).mul(speedTranslation);
+		upV = new Vector3f(upDirection).normalize().mul(speedTranslation);
 		downV = new Vector3f(upV).negate();
-		rightV = new Vector3f(frontDirection).cross(upDirection).mul(speedTranslation);
-		leftV = new Vector3f(rightV).negate();
-		frontV = new Vector3f(frontDirection).mul(speedTranslation);
+		rightV = new Vector3f(frontDirection).cross(upDirection).normalize().mul(speedTranslation);
+		leftV = new Vector3f(rightV).negate();;
+		frontV = new Vector3f(frontDirection).normalize().mul(speedTranslation);
 		backV = new Vector3f(frontV).negate();
 	}
 

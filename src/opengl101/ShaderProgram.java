@@ -16,6 +16,7 @@ public class ShaderProgram {
 	private IntBuffer errorBfr;
 	private static final String DEFAULT_FOLDER_PATH = "/shaders/";
 	private String vertexPath;
+	private int textureUnits;
 
 	public ShaderProgram(GL4 gl, String vertexPath, String fragmentPath) {
 		this.vertexPath = vertexPath;
@@ -160,9 +161,22 @@ public class ShaderProgram {
 		gl.glUniformMatrix4fv(gl.glGetUniformLocation(pgrmId, name), 1, false, matrixUniformBuffer);
 	}
 
+	public void setArrayMat4(String name, Matrix4f[] m) {
+		this.bind();
+		FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(m.length * 16);
+		for (int i = 0; i < m.length; ++i)
+			m[i].get(16 * i, buffer);
+		gl.glUniformMatrix4fv(gl.glGetUniformLocation(pgrmId, name), m.length, false, buffer);
+
+	}
+
 	public void setMat3(String name, Matrix3f m) {
 		this.bind();
 		m.get(matrixUniformBuffer);
 		gl.glUniformMatrix3fv(gl.glGetUniformLocation(pgrmId, name), 1, false, matrixUniformBuffer);
+	}
+
+	public void setTexture(String name, int textureId) {
+
 	}
 }

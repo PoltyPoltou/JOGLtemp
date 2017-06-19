@@ -54,7 +54,7 @@ uniform float uni_farPlane;
 
 //prototype for shadow calculation
 float dirLightShadowCalculation(vec4 fragPosFromLight, vec3 lightDir , vec3 normal);
-float pointLightShadowCalculation(PointLight l,vec3 fragmentPos);
+float pointLightShadowCalculation(PointLight l, vec3 fragmentPos, vec3 normal);
 void main()
 {
     // properties
@@ -65,11 +65,10 @@ void main()
     for(int i = 0; i < nbLights; i++){
 		result += CalcPointLight(pointLights[i], norm, fragmentPos, viewDir);
 	}
-    out_Color = vec4(result, 1.0);
-	//out_Color = vec4(vec3(CalcPointLight(pointLights[0], norm, fragmentPos, viewDir)),1.0);
-	
-	float gamma = 2.2;
-    out_Color.rgb = pow(out_Color.rgb, vec3(1.0 / gamma));
+	//out_Color = vec4(result, 1.0);
+	//float gamma = 2.2;
+    //out_Color.rgb = pow(out_Color.rgb, vec3(1.0 / gamma));
+	out_Color = vec4(vec3(CalcPointLight(pointLights[0], norm, fragmentPos, viewDir)),1);
 }
 
 
@@ -96,7 +95,6 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 		float shadow = dirLightShadowCalculation(fragmentPosLightSpace,lightDir,normal);//0 = light, 1 = shadow
 		float shadowFactor = 1 - shadow;
 		return (ambient + shadowFactor*(diffuse + specular))*light.color;
-		//return vec3(shadow);
 	
 }
 
@@ -119,9 +117,10 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
     diffuse  *= attenuation;
     specular *= attenuation;
 	//shadow
-	float shadow = pointLightShadowCalculation(light,fragmentPos);//0 = light, 1 = shadow
+	float shadow = pointLightShadowCalculation(light,fragmentPos,normal);//0 = light, 1 = shadow
 	float shadowFactor = 1 - shadow;
-    return (ambient + shadowFactor*(diffuse + specular))*light.color;
+    //return (ambient + shadowFactor*(diffuse + specular))*light.color;
+	return vec3(shadow);
 } 
 
 
@@ -142,15 +141,17 @@ float dirLightShadowCalculation(vec4 fragPosFromLight, vec3 lightDir , vec3 norm
 	return shadow;
 }
 
-float pointLightShadowCalculation(PointLight l, vec3 fragmentPos){
+float pointLightShadowCalculation(PointLight l, vec3 fragmentPos, vec3 normal){
 	float shadow;
-	float bias = 0.001; 
 	vec3 fragmentToLight = fragmentPos - l.position;
+	float bias = 0.001;
 	float currentDepth = length(fragmentToLight);
 	float closestDepth = texture(l.shadowMap,fragmentToLight).r;
-	closestDepth *= uni_farPlane;
-	shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+	currentDepth /= uni_farPlane;
+	shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 	return shadow;
+	//return texture(l.shadowMap,fragmentToLight).r;
+	//return currentDepth;
 }
 
 

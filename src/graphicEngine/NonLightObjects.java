@@ -8,6 +8,7 @@ import opengl101.*;
 
 public class NonLightObjects extends Model {
 	private Matrix3f normalMatrix;
+	private boolean reverseNormal = false;
 
 	public NonLightObjects(GL4 gl, String file) {
 		super(gl, file);
@@ -36,6 +37,12 @@ public class NonLightObjects extends Model {
 
 	private void updateNormalMatrix() {
 		new Matrix4f(model).invert().transpose3x3(normalMatrix);
+		if (reverseNormal)
+			normalMatrix.scale(-1);
+	}
+
+	public void reverseNormal() {
+		reverseNormal = !reverseNormal;
 	}
 
 }

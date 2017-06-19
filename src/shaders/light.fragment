@@ -4,5 +4,5 @@ out vec4 out_Color;
 uniform vec3 uni_color;
 void main()
 {
-    out_Color= vec4(uni_color,1.0);
+    out_Color= vec4(0.1,0.3,0.5,1.0);
 }

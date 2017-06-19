@@ -20,7 +20,7 @@ void main()
 {
 	norm = normalize(uni_normalMatrix*in_normal);
 	fragmentPos = vec3(uni_model * vec4(in_position, 1.0));
-	textCoords = in_texture; 
+	textCoords = vec2(in_texture.x,in_texture.y); 
 	fragmentPosLightSpace = uni_lightSpaceMatrix*vec4(fragmentPos,1);
     gl_Position = uni_proj*uni_view*uni_model*vec4(in_position,1.0);
  }
